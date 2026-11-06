@@ -43,7 +43,7 @@ export default function DeliveryPage() {
               </li>
               <li className="flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-wine-700 flex-shrink-0 mt-0.5" />
-                <span>Photo ID (21+) required when picking up your reserved items.</span>
+                <span>Photo ID (18+) required when picking up your reserved items.</span>
               </li>
             </ul>
           </div>
@@ -74,7 +74,7 @@ export default function DeliveryPage() {
               </li>
               <li className="flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-wine-700 flex-shrink-0 mt-0.5" />
-                <span>Recipient must be present with valid 21+ government photo ID. Packages cannot be left unattended.</span>
+                <span>Recipient must be present with valid 18+ government photo ID. Packages cannot be left unattended.</span>
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-wine-700 flex-shrink-0 mt-0.5" />

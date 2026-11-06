@@ -130,10 +130,10 @@ export default function CartDrawer() {
             {/* Drawer Footer */}
             {items.length > 0 && (
               <div className="p-5 border-t border-cellar-border bg-white space-y-3">
-                {/* 21+ Notice */}
+                {/* 18+ Notice */}
                 <div className="flex items-center gap-2 text-[11px] text-cellar-muted bg-wine-50/60 p-2 border border-wine-100 rounded-sm">
                   <ShieldCheck className="w-4 h-4 text-wine-700 flex-shrink-0" />
-                  <span>21+ ID verification required upon order delivery or pickup.</span>
+                  <span>18+ ID verification required upon order delivery or pickup.</span>
                 </div>
 
                 {/* Subtotal */}

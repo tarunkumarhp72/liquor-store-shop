@@ -30,13 +30,23 @@ const securityHeaders = [
   },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://oaszetyzonehuvsrnquu.supabase.co https://oaszetyzonehuvsrnquu.storage.supabase.co https://images.unsplash.com; connect-src 'self' https://oaszetyzonehuvsrnquu.supabase.co; frame-ancestors 'none';",
+    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://rightliquor.ca https://www.rightliquor.ca https://oaszetyzonehuvsrnquu.supabase.co https://oaszetyzonehuvsrnquu.storage.supabase.co https://images.unsplash.com; connect-src 'self' https://oaszetyzonehuvsrnquu.supabase.co; frame-ancestors 'none';",
   },
 ];
 
 const nextConfig = {
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rightliquor.ca',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.rightliquor.ca',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'oaszetyzonehuvsrnquu.supabase.co',

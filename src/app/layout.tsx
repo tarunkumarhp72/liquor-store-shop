@@ -11,13 +11,15 @@ export const metadata: Metadata = {
   keywords: 'liquor store, wine shop, beer delivery, spirits, champagne, calgary liquor, open late liquor',
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/icon.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/favicon.ico?v=2' },
+      { url: '/icon.png?v=2', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon-32x32.png?v=2', sizes: '32x32', type: 'image/png' },
+      { url: '/icon.svg?v=2', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/icon.svg', sizes: '180x180', type: 'image/svg+xml' },
+      { url: '/apple-icon.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/icon.svg',
+    shortcut: '/favicon.ico?v=2',
   },
 };
 
@@ -37,8 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="icon" href="/icon.png?v=2" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

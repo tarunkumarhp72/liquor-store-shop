@@ -5,6 +5,7 @@ import HeroSlider from '@/components/HeroSlider';
 import HomeShopTabs from '@/components/HomeShopTabs';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import CustomerReviews from '@/components/CustomerReviews';
+import BrandLogo from '@/components/BrandLogo';
 import { query } from '@/lib/db';
 import { Product } from '@/components/ProductCard';
 
@@ -142,7 +143,8 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-5 bg-[#ECE6DA] p-6 sm:p-10 rounded-sm border border-cellar-border text-center flex flex-col items-center justify-center">
-              <div className="disp text-4xl sm:text-5xl font-bold text-wine-700 mb-1">MH2</div>
+              <BrandLogo size={88} className="mb-3 shadow-md" />
+              <div className="disp text-3xl sm:text-4xl font-bold text-wine-700 mb-1">MH2 Liquor Store</div>
               <div className="w-12 h-0.5 bg-gold-600 mb-3" />
               <div className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-cellar-charcoal">
                 3106 4th Street NW

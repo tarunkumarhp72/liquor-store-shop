@@ -4,7 +4,7 @@ import { Wine, MapPin, Phone, Clock, ShieldCheck, ExternalLink } from 'lucide-re
 import BrandLogo from '@/components/BrandLogo';
 
 export default function Footer() {
-  const googleMapUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://share.google/sNkXu4KFg80gvnsCA';
+  const googleMapUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
 
   return (
     <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-20">
@@ -13,10 +13,10 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 text-xs text-[#B8ADA1] leading-relaxed">
           <div className="flex-shrink-0 flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-[11px] border border-gold-600/30 px-3 py-1.5 rounded-sm">
             <ShieldCheck className="w-4 h-4 text-gold-400" />
-            21+ Compliance Notice
+            18+ Compliance Notice
           </div>
           <p className="flex-1 text-center md:text-left">
-            <strong>GOVERNMENT WARNING:</strong> (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems. Valid government photo ID verifying age (21+) is required at delivery and in-store pickup.
+            <strong>GOVERNMENT WARNING:</strong> (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems. Valid government photo ID verifying age (18+) is required at delivery and in-store pickup.
           </p>
         </div>
       </div>
@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Col 1: Brand Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <BrandLogo size={42} variant="dark" />
+              <BrandLogo size={48} />
               <span className="disp text-2xl text-white font-bold">MH2 Liquor Store</span>
             </div>
             <p className="text-sm text-[#A89E92] leading-relaxed mb-4">

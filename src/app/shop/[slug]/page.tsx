@@ -225,7 +225,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
           <div className="space-y-2 pt-4 border-t border-cellar-border/60 text-xs text-cellar-muted">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-wine-700 shrink-0" />
-              <span><strong>21+ ID Verification:</strong> Valid government photo ID verified upon delivery or pickup.</span>
+              <span><strong>18+ ID Verification:</strong> Valid government photo ID verified upon delivery or pickup.</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-wine-700 shrink-0" />

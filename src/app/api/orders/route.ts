@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Strict Legal Age Verification Gate
     if (age_verified !== true) {
-      return NextResponse.json({ error: 'Legal adult age confirmation (21+ in USA / legal age) is strictly required to purchase alcohol' }, { status: 400 });
+      return NextResponse.json({ error: 'Legal adult age confirmation (18+ / legal drinking age) is strictly required to purchase alcohol' }, { status: 400 });
     }
 
     // 4. Cart Items Validation
@@ -139,6 +139,16 @@ export async function POST(req: NextRequest) {
     const verifiedTotalAmount = parseFloat((serverSubtotal + taxAmount).toFixed(2));
 
     // 8. Atomic Database Transaction: Deduct Stock & Insert Verified Order
+    if (!pool) {
+      return NextResponse.json({
+        success: true,
+        orderId: 'DEMO-' + Math.floor(100000 + Math.random() * 900000),
+        status: 'pending',
+        message: 'Order received (demo mode)',
+        total: verifiedTotalAmount,
+      });
+    }
+
     const client = await pool.connect();
     let orderRow: any;
 

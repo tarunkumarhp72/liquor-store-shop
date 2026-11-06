@@ -13,7 +13,7 @@ A modern, high-performance web application and digital cellar showcase for **MH2
 - **Glassmorphic Navigation:** Apple HIG-compliant frosted top bar, perfectly contained vector brand logo (`MH₂`), and custom favicon.
 - **Mobile-First & Apple HIG Responsive:** Sticky mobile quick-action bar with safe-area insets (`env(safe-area-inset-bottom)`).
 - **Staff Admin Portal:** Dedicated protected dashboard (`/admin`) for product management, stock toggle, and category management with rate-limited authentication.
-- **Legal Compliance:** Mandatory 21+ Age Gate Modal, Surgeon General warnings, and Alberta liquor retail compliance notices.
+- **Legal Compliance:** Mandatory 18+ Age Gate Modal, Surgeon General warnings, and Alberta liquor retail compliance notices.
 
 ---
 

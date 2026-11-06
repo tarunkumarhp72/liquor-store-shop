@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Phone, MapPin, Truck, Shield } from 'lucide-react';
+import { Menu, X, Phone, MapPin, Truck } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import CallStoreModal from '@/components/CallStoreModal';
 
@@ -49,13 +49,6 @@ export default function Header() {
               <Phone className="w-3 h-3 text-gold-500" />
               <span>(403) 769-0061</span>
             </button>
-            <Link
-              href="/admin/login"
-              className="hidden sm:inline-flex items-center gap-1 text-gold-400 hover:text-white transition font-medium text-[10px] border border-gold-600/40 px-2 py-0.5 rounded-sm"
-            >
-              <Shield className="w-2.5 h-2.5" />
-              Admin
-            </Link>
           </div>
         </div>
       </div>
@@ -65,7 +58,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-3">
           {/* Logo & Brand - Scaled for high mobile elegance */}
           <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
-            <BrandLogo size={36} variant="dark" className="group-hover:scale-105 transition-transform sm:w-[40px] sm:h-[40px]" />
+            <BrandLogo size={40} className="group-hover:scale-105 transition-transform sm:w-[44px] sm:h-[44px]" />
             <div className="flex flex-col">
               <span className="disp text-base xs:text-lg sm:text-xl md:text-2xl leading-none text-white font-bold tracking-tight group-hover:text-gold-300 transition">
                 MH2 Liquor Store

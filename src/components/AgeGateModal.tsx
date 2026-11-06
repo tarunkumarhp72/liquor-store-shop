@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Wine } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function AgeGateModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,21 +37,21 @@ export default function AgeGateModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-cellar-charcoal/90 backdrop-blur-md">
       <div className="relative w-full max-w-lg p-5 sm:p-8 bg-[#F8F5EF] border border-gold-600 shadow-2xl text-center rounded-sm max-h-[92dvh] overflow-y-auto">
-        {/* Crest */}
-        <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-gold-600 flex items-center justify-center mb-3 sm:mb-5 bg-wine-50 text-wine-700">
-          <Wine className="w-6 h-6 sm:w-8 sm:h-8 text-wine-700" />
+        {/* Brand Crest */}
+        <div className="flex justify-center mb-3 sm:mb-4">
+          <BrandLogo size={58} className="shadow-md" />
         </div>
 
         {!underage ? (
           <>
             <div className="text-[10px] sm:text-xs font-bold tracking-widest text-gold-700 uppercase mb-1.5">
-              Legal Drinking Age Verification (21+)
+              Legal Drinking Age Verification (18+)
             </div>
             <h2 className="disp text-2xl sm:text-3xl text-cellar-charcoal mb-2 sm:mb-3 font-bold">
               Welcome to MH2 Wine & Spirits
             </h2>
             <p className="text-xs sm:text-sm text-cellar-muted leading-relaxed mb-5">
-              In accordance with beverage control laws, you must be at least <strong>21 years of age</strong> (18+ in Alberta, Canada) to view our catalog and purchase alcoholic beverages.
+              In accordance with beverage control laws, you must be at least <strong>18 years of age</strong> to view our catalog and purchase alcoholic beverages.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-2.5 justify-center mb-3">
@@ -58,13 +59,13 @@ export default function AgeGateModal() {
                 onClick={handleConfirmAge}
                 className="w-full sm:w-auto min-h-[44px] px-6 py-3 bg-wine-700 hover:bg-wine-800 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition rounded-sm shadow-md active:scale-98"
               >
-                I AM 21 OR OLDER
+                I AM 18 OR OLDER
               </button>
               <button
                 onClick={handleUnderage}
                 className="w-full sm:w-auto min-h-[44px] px-5 py-3 border border-cellar-border text-cellar-charcoal hover:bg-white font-bold text-xs sm:text-sm uppercase tracking-wider transition rounded-sm active:scale-98"
               >
-                I AM UNDER 21
+                I AM UNDER 18
               </button>
             </div>
 

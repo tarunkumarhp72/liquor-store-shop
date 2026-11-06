@@ -10,7 +10,7 @@ export default function ContactPage() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
 
-  const googleMapUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://share.google/sNkXu4KFg80gvnsCA';
+  const googleMapUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
