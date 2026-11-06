@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Phone, MapPin, Truck, Shield } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
+import CallStoreModal from '@/components/CallStoreModal';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [callModalOpen, setCallModalOpen] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
@@ -22,6 +24,8 @@ export default function Header() {
 
   return (
     <>
+      <CallStoreModal isOpen={callModalOpen} onClose={() => setCallModalOpen(false)} />
+
       {/* Top Utility Bar */}
       <div className="bg-cellar-charcoal text-[#D9D2C6] text-xs py-1.5 px-4 border-b border-white/10">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-2">
@@ -37,16 +41,17 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-3">
-            <a
-              href="tel:+14037690061"
-              className="inline-flex items-center gap-1.5 text-white font-semibold hover:text-gold-400 transition text-[11px] sm:text-xs min-h-[32px]"
+            <button
+              onClick={() => setCallModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-white font-semibold hover:text-gold-400 transition text-[11px] sm:text-xs min-h-[32px] cursor-pointer"
+              title="Call MH2 Liquor Store"
             >
               <Phone className="w-3 h-3 text-gold-500" />
               <span>(403) 769-0061</span>
-            </a>
+            </button>
             <Link
               href="/admin/login"
-              className="hidden sm:inline-flex items-center gap-1 text-gold-400 hover:text-white transition font-medium text-[10px] border border-gold-600/40 px-2 py-0.5 rounded-xs"
+              className="hidden sm:inline-flex items-center gap-1 text-gold-400 hover:text-white transition font-medium text-[10px] border border-gold-600/40 px-2 py-0.5 rounded-sm"
             >
               <Shield className="w-2.5 h-2.5" />
               Admin
@@ -57,15 +62,15 @@ export default function Header() {
 
       {/* Main Sticky Header - Frosted luxury glassmorphic bar */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#14100E]/85 border-b border-white/[0.08] shadow-md transition-all duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-4">
-          {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <BrandLogo size={42} variant="dark" className="group-hover:scale-105 transition-transform" />
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-3">
+          {/* Logo & Brand - Scaled for high mobile elegance */}
+          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
+            <BrandLogo size={36} variant="dark" className="group-hover:scale-105 transition-transform sm:w-[40px] sm:h-[40px]" />
             <div className="flex flex-col">
-              <span className="disp text-xl sm:text-2xl leading-none text-white font-bold tracking-tight group-hover:text-gold-300 transition">
+              <span className="disp text-base xs:text-lg sm:text-xl md:text-2xl leading-none text-white font-bold tracking-tight group-hover:text-gold-300 transition">
                 MH2 Liquor Store
               </span>
-              <span className="text-[9px] sm:text-[10px] tracking-widest uppercase font-semibold text-gold-400 mt-0.5">
+              <span className="text-[8px] sm:text-[9px] md:text-[10px] tracking-widest uppercase font-semibold text-gold-400 mt-0.5">
                 Wine, Beer & Spirits
               </span>
             </div>
@@ -92,27 +97,28 @@ export default function Header() {
           </nav>
 
           {/* Header Action Controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Soft-rounded Uber Eats Button */}
             <a
               href={uberEatsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 bg-wine-700 hover:bg-wine-600 active:scale-95 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase rounded-sm transition shadow-sm min-h-[38px] border border-wine-500/30"
+              className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 bg-wine-700 hover:bg-wine-600 active:scale-95 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase rounded-md transition shadow-sm min-h-[36px] border border-wine-500/30"
             >
-              <Truck className="w-3.5 h-3.5 text-gold-400" />
-              <span className="hidden xs:inline">Order on</span> Uber Eats
+              <Truck className="w-3.5 h-3.5 text-gold-400 shrink-0" />
+              <span>Uber Eats</span>
             </a>
 
-            {/* Mobile Hamburger Button (Apple min 44px tap target, high-contrast, always visible) */}
+            {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-white hover:text-gold-400 bg-white/10 hover:bg-white/15 border border-gold-500/40 rounded-sm active:scale-95 transition focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+              className="lg:hidden w-9 h-9 flex items-center justify-center text-white hover:text-gold-400 bg-white/10 hover:bg-white/15 border border-gold-500/40 rounded-md active:scale-95 transition focus:outline-none focus:ring-2 focus:ring-gold-500/50"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-gold-400" strokeWidth={2.5} />
+                <X className="w-4 h-4 text-gold-400" strokeWidth={2.5} />
               ) : (
-                <Menu className="w-5 h-5 text-white" strokeWidth={2.5} />
+                <Menu className="w-4 h-4 text-white" strokeWidth={2.5} />
               )}
             </button>
           </div>
@@ -129,7 +135,7 @@ export default function Header() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`min-h-[44px] flex items-center text-sm font-bold tracking-wide px-3 rounded-sm transition ${
+                    className={`min-h-[44px] flex items-center text-sm font-bold tracking-wide px-3 rounded-md transition ${
                       active ? 'bg-gold-500/15 text-gold-400' : 'text-zinc-200 hover:bg-white/5 hover:text-white'
                     }`}
                   >
@@ -143,18 +149,22 @@ export default function Header() {
                   href={uberEatsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="min-h-[44px] w-full py-2.5 bg-wine-700 hover:bg-wine-600 text-white text-center text-xs font-bold uppercase rounded-sm tracking-wide flex items-center justify-center gap-2 shadow-xs transition"
+                  className="min-h-[44px] w-full py-2.5 bg-wine-700 hover:bg-wine-600 text-white text-center text-xs font-bold uppercase rounded-md tracking-wide flex items-center justify-center gap-2 shadow-xs transition"
                 >
-                  <Truck className="w-4 h-4 text-gold-400" />
+                  <Truck className="w-3.5 h-3.5 text-gold-400" />
                   <span>Order on Uber Eats</span>
                 </a>
-                <a
-                  href="tel:+14037690061"
-                  className="min-h-[44px] w-full py-2.5 bg-white/10 hover:bg-white/15 text-white text-center text-xs font-bold uppercase rounded-sm tracking-wide flex items-center justify-center gap-2 border border-gold-500/30 transition"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setCallModalOpen(true);
+                  }}
+                  className="min-h-[44px] w-full py-2.5 bg-white/10 hover:bg-white/15 text-white text-center text-xs font-bold uppercase rounded-md tracking-wide flex items-center justify-center gap-2 border border-gold-500/30 transition cursor-pointer"
                 >
                   <Phone className="w-4 h-4 text-gold-400" />
                   <span>Call Store: (403) 769-0061</span>
-                </a>
+                </button>
                 <Link
                   href="/admin/login"
                   onClick={() => setMobileMenuOpen(false)}

@@ -4,6 +4,7 @@ import { Clock, Truck, Car, Star, ArrowRight, ShieldCheck, MapPin, Sparkles } fr
 import HeroSlider from '@/components/HeroSlider';
 import HomeShopTabs from '@/components/HomeShopTabs';
 import CategoryCarousel from '@/components/CategoryCarousel';
+import CustomerReviews from '@/components/CustomerReviews';
 import { query } from '@/lib/db';
 import { Product } from '@/components/ProductCard';
 
@@ -130,7 +131,12 @@ export default async function HomePage() {
         <CategoryCarousel categories={categories} />
       </section>
 
-      {/* 5. Our Story Section */}
+      {/* 5. Customer Reviews Scraped from Google Maps & Uber Eats */}
+      <section>
+        <CustomerReviews />
+      </section>
+
+      {/* 6. Our Story Section */}
       <section className="bg-white border-y border-cellar-border py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
