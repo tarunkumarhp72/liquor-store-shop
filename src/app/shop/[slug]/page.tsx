@@ -103,7 +103,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
   const related = await getRelatedProducts(product.category_slug, product.id);
   const priceNum = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
-  const uberEatsUrl = process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
+  const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
 
   // Background tone class based on category
   let toneClass = 'bg-[#EBDADD]';

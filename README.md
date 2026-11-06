@@ -47,10 +47,10 @@ Fill in your database URL and secrets in `.env.local`:
 ```env
 DATABASE_URL=postgresql://postgres.[REF]:[PASSWORD]@[HOST]:5432/postgres
 ADMIN_JWT_SECRET=your_super_secret_jwt_key
-NEXT_PUBLIC_STORE_NAME="MH2 Wine & Liquor Store"
-NEXT_PUBLIC_STORE_PHONE="(403) 769-0061"
-NEXT_PUBLIC_STORE_ADDRESS="3106 A 4 St NW, Calgary, AB T2M 3A4"
-NEXT_PUBLIC_UBER_EATS_URL="https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig"
+NEXT_PROD_STORE_NAME="MH2 Wine & Liquor Store"
+NEXT_PROD_STORE_PHONE="(403) 769-0061"
+NEXT_PROD_STORE_ADDRESS="3106 A 4 St NW, Calgary, AB T2M 3A4"
+NEXT_PROD_UBER_EATS_URL="https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig"
 ```
 
 ### 3. Run Development Server

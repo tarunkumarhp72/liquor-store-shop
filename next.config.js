@@ -35,6 +35,16 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  env: {
+    NEXT_PROD_SUPABASE_URL: process.env.NEXT_PROD_SUPABASE_URL,
+    NEXT_PROD_SUPABASE_ANON_KEY: process.env.NEXT_PROD_SUPABASE_ANON_KEY,
+    NEXT_PROD_STORE_NAME: process.env.NEXT_PROD_STORE_NAME,
+    NEXT_PROD_STORE_PHONE: process.env.NEXT_PROD_STORE_PHONE,
+    NEXT_PROD_STORE_ADDRESS: process.env.NEXT_PROD_STORE_ADDRESS,
+    NEXT_PROD_STORE_HOURS: process.env.NEXT_PROD_STORE_HOURS,
+    NEXT_PROD_GOOGLE_MAPS_URL: process.env.NEXT_PROD_GOOGLE_MAPS_URL,
+    NEXT_PROD_UBER_EATS_URL: process.env.NEXT_PROD_UBER_EATS_URL,
+  },
   images: {
     remotePatterns: [
       {
