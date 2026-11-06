@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -14,7 +14,11 @@ import {
   Pencil, 
   Save, 
   Loader2, 
-  AlertCircle 
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 
 export default function ProductTable({ initialProducts }: { initialProducts: any[] }) {
@@ -23,14 +27,22 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  // Pagination states (Prevents loading 130+ Supabase images simultaneously)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
   // Edit Modal State
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [editError, setEditError] = useState('');
   const [successToast, setSuccessToast] = useState('');
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const categories = Array.from(new Set(initialProducts.map((p) => p.category_slug)));
 
+  // Filter products
   const filtered = products.filter((p) => {
     const matchesSearch = 
       p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -38,6 +50,18 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
     const matchesCat = selectedCategory === 'all' || p.category_slug === selectedCategory;
     return matchesSearch && matchesCat;
   });
+
+  // Reset page when filter or page size changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedCategory, pageSize]);
+
+  // Compute pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (validCurrentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filtered.length);
+  const paginatedProducts = filtered.slice(startIndex, endIndex);
 
   const toggleStock = async (id: string, currentStatus: boolean) => {
     setUpdatingId(id);
@@ -100,6 +124,36 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
     setTimeout(() => setSuccessToast(''), 3000);
   };
 
+  // Handle direct file upload for product image
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingProduct) return;
+
+    setUploadingImage(true);
+    setEditError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload image');
+
+      setEditingProduct({ ...editingProduct, image_url: data.url });
+      showToast('Image uploaded successfully!');
+    } catch (err: any) {
+      setEditError(err.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
@@ -140,7 +194,7 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
         </div>
       )}
 
-      {/* Search and Category Filters */}
+      {/* Search, Category Filter, and Per Page Selector */}
       <div className="bg-white border border-cellar-border p-3.5 sm:p-4 rounded-lg flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
         <div className="relative w-full sm:w-80">
           <input
@@ -154,6 +208,7 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          {/* Category Dropdown */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -167,6 +222,19 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
             ))}
           </select>
 
+          {/* Page Size Dropdown */}
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+            className="text-xs bg-cellar-cream border border-cellar-border rounded-md px-2.5 py-2 text-cellar-charcoal focus:outline-none font-semibold min-h-[38px]"
+            title="Bottles per page"
+          >
+            <option value={15}>15 / page</option>
+            <option value={25}>25 / page</option>
+            <option value={50}>50 / page</option>
+          </select>
+
+          {/* New Bottle CTA */}
           <Link
             href="/admin/products/new"
             className="px-4 py-2 bg-wine-700 hover:bg-wine-800 active:scale-98 text-white text-xs font-bold uppercase tracking-wider rounded-md transition flex items-center justify-center gap-1.5 whitespace-nowrap shadow-xs min-h-[38px] flex-1 sm:flex-initial"
@@ -181,10 +249,10 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
       <div className="bg-white border border-cellar-border rounded-lg shadow-xs overflow-hidden">
         <div className="p-3.5 sm:p-4 border-b border-cellar-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-cellar-muted">
           <span>
-            Showing <strong>{filtered.length}</strong> items in catalog
+            Showing <strong>{filtered.length === 0 ? 0 : startIndex + 1}–{endIndex}</strong> of <strong>{filtered.length}</strong> bottles in catalog (Page {validCurrentPage} of {totalPages})
           </span>
           <span className="hidden sm:inline">
-            Click on status pill to toggle In-Stock / Out-of-Stock
+            Fast batch view: images load on-demand
           </span>
         </div>
 
@@ -202,7 +270,7 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
               </tr>
             </thead>
             <tbody className="divide-y divide-cellar-border/60">
-              {filtered.map((p) => (
+              {paginatedProducts.map((p) => (
                 <tr key={p.id} className="hover:bg-cellar-cream/40 transition">
                   {/* Thumbnail & Title */}
                   <td className="py-3 px-3 sm:px-4 flex items-center gap-2.5 sm:gap-3">
@@ -212,6 +280,7 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
                         alt={p.name}
                         width={40}
                         height={50}
+                        loading="lazy"
                         className="max-h-full w-auto object-contain"
                       />
                     </div>
@@ -312,9 +381,68 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
             </tbody>
           </table>
         </div>
+
+        {/* PAGINATION CONTROLS */}
+        {totalPages > 1 && (
+          <div className="p-3.5 sm:p-4 bg-cellar-cream/40 border-t border-cellar-border flex items-center justify-between gap-3 text-xs">
+            {/* Prev Button */}
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={validCurrentPage <= 1}
+              className="px-3 py-1.5 border border-cellar-border bg-white rounded-md text-cellar-charcoal font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 flex items-center gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </button>
+
+            {/* Page Number Chips */}
+            <div className="hidden sm:flex items-center gap-1">
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pNum = i + 1;
+                const isCurrent = pNum === validCurrentPage;
+                if (pNum !== 1 && pNum !== totalPages && Math.abs(pNum - validCurrentPage) > 2) {
+                  if (Math.abs(pNum - validCurrentPage) === 3) {
+                    return <span key={pNum} className="px-1 text-cellar-muted">&hellip;</span>;
+                  }
+                  return null;
+                }
+                return (
+                  <button
+                    key={pNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pNum)}
+                    className={`w-7 h-7 rounded-md font-bold text-xs transition ${
+                      isCurrent
+                        ? 'bg-wine-700 text-white shadow-2xs'
+                        : 'bg-white border border-cellar-border text-cellar-charcoal hover:bg-zinc-100'
+                    }`}
+                  >
+                    {pNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="sm:hidden font-bold text-cellar-charcoal">
+              {validCurrentPage} / {totalPages}
+            </div>
+
+            {/* Next Button */}
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={validCurrentPage >= totalPages}
+              className="px-3 py-1.5 border border-cellar-border bg-white rounded-md text-cellar-charcoal font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 flex items-center gap-1"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* EDIT PRODUCT MODAL DIALOG */}
+      {/* EDIT PRODUCT MODAL DIALOG WITH IMAGE UPLOAD & PREVIEW */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           {/* Backdrop */}
@@ -332,7 +460,7 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
                   Edit Bottle Details
                 </h3>
                 <p className="text-xs text-cellar-muted mt-0.5">
-                  Update inventory, pricing, category, and tasting notes.
+                  Update inventory, pricing, bottle image, category, and tasting notes.
                 </p>
               </div>
               <button
@@ -352,6 +480,73 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
             )}
 
             <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
+              {/* IMAGE UPLOAD & PREVIEW SECTION */}
+              <div className="p-3.5 bg-cellar-cream/60 border border-cellar-border rounded-lg space-y-3">
+                <label className="block font-semibold text-cellar-charcoal">
+                  Bottle Photo / Image
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  {/* Live Thumbnail Preview */}
+                  <div className="w-20 h-24 bg-white border border-cellar-border rounded-md p-1 flex items-center justify-center shrink-0 shadow-xs relative overflow-hidden">
+                    {editingProduct.image_url ? (
+                      <Image
+                        src={editingProduct.image_url}
+                        alt="Preview"
+                        width={60}
+                        height={80}
+                        className="max-h-full w-auto object-contain"
+                      />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-zinc-300" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 w-full space-y-2">
+                    {/* Upload File Button */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="bottle-image-upload"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                        className="px-3.5 py-2 bg-white border border-cellar-border hover:border-gold-600 rounded-md text-xs font-bold text-cellar-charcoal flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                      >
+                        {uploadingImage ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-wine-700" />
+                            <span>Uploading File...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3.5 h-3.5 text-wine-700" />
+                            <span>Upload New Photo</span>
+                          </>
+                        )}
+                      </button>
+                      <span className="text-[11px] text-cellar-muted">PNG, JPG, WEBP up to 8MB</span>
+                    </div>
+
+                    {/* Direct Image URL input */}
+                    <div>
+                      <input
+                        type="text"
+                        value={editingProduct.image_url || ''}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, image_url: e.target.value })}
+                        placeholder="Or enter direct image URL..."
+                        className="w-full p-2 bg-white border border-cellar-border rounded-md focus:border-gold-600 focus:outline-none font-mono text-[11px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Product Name */}
               <div>
                 <label className="block font-semibold text-cellar-charcoal mb-1">Bottle Name *</label>
@@ -465,17 +660,6 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
                 </div>
               </div>
 
-              {/* Image URL */}
-              <div>
-                <label className="block font-semibold text-cellar-charcoal mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={editingProduct.image_url || ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, image_url: e.target.value })}
-                  className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-md focus:border-gold-600 focus:outline-none font-mono text-[11px]"
-                />
-              </div>
-
               {/* Tasting Notes */}
               <div>
                 <label className="block font-semibold text-cellar-charcoal mb-1">Short Description / Notes</label>
@@ -528,8 +712,8 @@ export default function ProductTable({ initialProducts }: { initialProducts: any
                 </button>
                 <button
                   type="submit"
-                  disabled={savingEdit}
-                  className="px-5 py-2 bg-wine-700 hover:bg-wine-800 text-white rounded-md font-bold uppercase tracking-wider text-xs transition flex items-center gap-1.5 shadow-sm disabled:bg-gray-400"
+                  disabled={savingEdit || uploadingImage}
+                  className="px-5 py-2 bg-wine-700 hover:bg-wine-800 text-white rounded-md font-bold uppercase tracking-wider text-xs transition flex items-center gap-1.5 shadow-sm disabled:bg-gray-400 cursor-pointer"
                 >
                   {savingEdit ? (
                     <>

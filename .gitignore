@@ -32,6 +32,8 @@ skills-lock.json
 # 5. Local Data & Migration Scripts
 downloaded_images/
 scripts/
+/public/uploads/*
+!/public/uploads/.gitkeep
 
 # 6. Logs & Debug Files
 npm-debug.log*

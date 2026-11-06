@@ -1,15 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Check } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Plus, Check, Upload, Loader2, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 export default function NewProductPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState('');
 
   // Form fields
   const [name, setName] = useState('');
@@ -34,6 +39,36 @@ export default function NewProductPage() {
       })
       .catch((err) => console.error(err));
   }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setError('');
+    setUploadSuccess('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload image');
+
+      setImageUrl(data.url);
+      setUploadSuccess('Image uploaded successfully!');
+    } catch (err: any) {
+      setError(err.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,13 +121,20 @@ export default function NewProductPage() {
       <div className="border-b border-cellar-border pb-4">
         <h1 className="disp text-3xl font-bold text-cellar-charcoal">Add New Bottle</h1>
         <p className="text-xs text-cellar-muted mt-1">
-          Insert a new wine, spirit, or craft beer into the live Supabase catalog.
+          Insert a new wine, spirit, or craft beer into the catalog with custom photo upload or Supabase storage link.
         </p>
       </div>
 
       {error && (
         <div className="p-3 bg-red-50 text-red-700 text-xs rounded-sm border border-red-200">
           {error}
+        </div>
+      )}
+
+      {uploadSuccess && (
+        <div className="p-3 bg-emerald-50 text-emerald-800 text-xs rounded-sm border border-emerald-200 flex items-center gap-2">
+          <Check className="w-4 h-4 text-emerald-600" />
+          <span>{uploadSuccess}</span>
         </div>
       )}
 
@@ -116,7 +158,7 @@ export default function NewProductPage() {
             <select
               value={categorySlug}
               onChange={(e) => setCategorySlug(e.target.value)}
-              className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none uppercase font-semibold text-xs"
+              className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none uppercase font-semibold text-xs min-h-[38px]"
             >
               {categories.map((c) => (
                 <option key={c.slug} value={c.slug}>
@@ -226,20 +268,78 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Image URL */}
+        {/* Product Image: Upload or Direct URL */}
         <div className="border-t border-cellar-border/60 pt-4">
-          <label className="block font-semibold text-cellar-charcoal mb-1">Image URL / Path</label>
-          <input
-            type="text"
-            required
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="/images/products/filename.jpg or Supabase bucket URL"
-            className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none text-xs font-mono"
-          />
-          <p className="text-[11px] text-cellar-muted mt-1">
-            Path points to an image in <code>public/images/products/</code> or your Supabase <code>wine-shop</code> bucket.
-          </p>
+          <label className="block font-semibold text-cellar-charcoal mb-2">Bottle Image</label>
+          
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            {/* Live Thumbnail Preview */}
+            <div className="md:col-span-3 flex flex-col items-center p-3 bg-cellar-cream border border-cellar-border rounded-md text-center">
+              <div className="relative w-28 h-36 bg-white rounded border border-cellar-border/70 flex items-center justify-center overflow-hidden mb-2 shadow-2xs">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="Bottle Preview"
+                    className="object-contain max-h-full max-w-full p-1"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="%23999" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>';
+                    }}
+                  />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-stone-300" />
+                )}
+              </div>
+              <span className="text-[10px] text-cellar-muted font-semibold">Live Preview</span>
+            </div>
+
+            {/* Upload Button & URL Field */}
+            <div className="md:col-span-9 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/png, image/jpeg, image/webp, image/avif, image/svg+xml"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="px-4 py-2 bg-cellar-charcoal hover:bg-black text-white text-xs font-bold rounded-md flex items-center gap-2 transition cursor-pointer shadow-xs disabled:bg-gray-400"
+                >
+                  {uploadingImage ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-gold-400" />
+                      <span>Uploading File...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5 text-gold-400" />
+                      <span>Upload Bottle Photo</span>
+                    </>
+                  )}
+                </button>
+                <span className="text-[11px] text-cellar-muted">
+                  Supports PNG, JPG, WEBP, AVIF (Max 8MB)
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-[11px] text-cellar-muted mb-1 font-medium">
+                  Or enter Direct Image URL / Supabase Public URL:
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://...supabase.co/... or /uploads/filename.webp"
+                  className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none text-xs font-mono"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Descriptions */}
@@ -251,6 +351,17 @@ export default function NewProductPage() {
               value={shortDesc}
               onChange={(e) => setShortDesc(e.target.value)}
               placeholder="Aromas of dark cherries, blackberry crumble, toasted cedar, and velvet tannins..."
+              className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-cellar-charcoal mb-1">Full Detailed Description</label>
+            <textarea
+              rows={4}
+              value={fullDesc}
+              onChange={(e) => setFullDesc(e.target.value)}
+              placeholder="Detailed producer background, terroir notes, pairing suggestions, and vintage details..."
               className="w-full p-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none text-xs"
             />
           </div>
@@ -266,7 +377,7 @@ export default function NewProductPage() {
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-2.5 bg-wine-700 hover:bg-wine-800 text-white font-bold text-xs uppercase tracking-wider rounded-sm transition shadow-sm disabled:bg-gray-400"
+            className="px-8 py-2.5 bg-wine-700 hover:bg-wine-800 text-white font-bold text-xs uppercase tracking-wider rounded-sm transition shadow-sm disabled:bg-gray-400 cursor-pointer"
           >
             {loading ? 'Saving...' : 'Add Bottle to Catalog'}
           </button>
@@ -275,4 +386,3 @@ export default function NewProductPage() {
     </div>
   );
 }
-

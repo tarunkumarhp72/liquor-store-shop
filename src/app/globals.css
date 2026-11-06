@@ -41,6 +41,18 @@ body {
 .tone-coolers {
   background-color: #E0E6DF;
 }
+.tone-champagne {
+  background-color: #F3ECDD;
+}
+.tone-agave {
+  background-color: #EDE4D8;
+}
+.tone-rose {
+  background-color: #FCE7F3;
+}
+.tone-cider {
+  background-color: #FDF2E9;
+}
 
 /* Touch and scroll helpers for iOS / Apple devices */
 .scrollbar-none {
