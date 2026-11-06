@@ -2,12 +2,19 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Truck, Phone, Wine } from 'lucide-react';
 import CallStoreModal from '@/components/CallStoreModal';
 
 export default function MobileBottomBar() {
+  const pathname = usePathname();
   const [callModalOpen, setCallModalOpen] = useState(false);
   const uberEatsUrl = process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
+
+  // Do not render customer bottom bar inside admin portal
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <>

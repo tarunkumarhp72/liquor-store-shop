@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wine, Lock, Mail, ArrowRight, ShieldCheck, KeyRound } from 'lucide-react';
+import { Wine, Lock, Mail, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@mh2liquor.com');
-  const [password, setPassword] = useState('MH2Liquor2026!Admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const data = await res.json();
@@ -40,9 +40,9 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-cellar-charcoal flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white border border-gold-600/40 rounded-sm shadow-2xl p-8 sm:p-10 relative">
+      <div className="w-full max-w-md bg-white border border-gold-500/30 rounded-lg shadow-2xl p-7 sm:p-10 relative">
         {/* Brand Crest */}
-        <div className="w-16 h-16 rounded-full border-2 border-gold-600 flex items-center justify-center mx-auto mb-4 bg-wine-50 text-wine-700">
+        <div className="w-16 h-16 rounded-full border-2 border-gold-500/60 flex items-center justify-center mx-auto mb-4 bg-wine-50 text-wine-700 shadow-xs">
           <Wine className="w-8 h-8" />
         </div>
 
@@ -53,20 +53,8 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Credentials Reminder Box */}
-        <div className="mb-6 p-3.5 bg-cellar-cream border border-cellar-border rounded-sm text-xs text-cellar-muted">
-          <div className="flex items-center gap-1.5 font-bold text-cellar-charcoal mb-1">
-            <KeyRound className="w-3.5 h-3.5 text-wine-700" />
-            <span>Store Admin Access:</span>
-          </div>
-          <div className="font-mono text-[11px] text-wine-900 space-y-0.5">
-            <div>Email: <strong className="select-all">admin@mh2liquor.com</strong></div>
-            <div>Password: <strong className="select-all">MH2Liquor2026!Admin</strong></div>
-          </div>
-        </div>
-
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-sm">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
             {error}
           </div>
         )}
@@ -80,7 +68,9 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none"
+                placeholder="admin@mh2liquor.com"
+                autoComplete="email"
+                className="w-full pl-9 pr-3 py-2.5 bg-cellar-cream border border-cellar-border rounded-md focus:border-gold-600 focus:outline-none text-cellar-charcoal text-xs"
               />
               <Mail className="w-4 h-4 text-cellar-muted absolute left-3 top-3" />
             </div>
@@ -94,7 +84,9 @@ export default function AdminLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-cellar-cream border border-cellar-border rounded-sm focus:border-gold-600 focus:outline-none"
+                placeholder="••••••••••••"
+                autoComplete="current-password"
+                className="w-full pl-9 pr-3 py-2.5 bg-cellar-cream border border-cellar-border rounded-md focus:border-gold-600 focus:outline-none text-cellar-charcoal text-xs"
               />
               <Lock className="w-4 h-4 text-cellar-muted absolute left-3 top-3" />
             </div>
@@ -103,22 +95,27 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-wine-700 hover:bg-wine-800 text-white font-bold text-xs uppercase tracking-widest rounded-sm transition shadow-md disabled:bg-gray-400 mt-2"
+            className="w-full py-3 bg-wine-700 hover:bg-wine-800 active:scale-98 text-white font-bold text-xs uppercase tracking-widest rounded-md transition shadow-md disabled:bg-gray-400 mt-2 min-h-[42px] cursor-pointer"
           >
             {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-cellar-border text-center">
+        {/* Security badge */}
+        <div className="mt-6 pt-4 border-t border-cellar-border flex items-center justify-between text-[11px] text-cellar-muted">
           <Link
             href="/"
-            className="text-xs text-cellar-muted hover:text-wine-700 transition font-medium"
+            className="hover:text-wine-700 transition flex items-center gap-1 font-medium"
           >
-            &larr; Return to Customer Storefront
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Storefront</span>
           </Link>
+          <div className="flex items-center gap-1 text-emerald-800">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Encrypted Session</span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

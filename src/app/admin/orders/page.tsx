@@ -53,8 +53,8 @@ export default async function AdminOrdersPage() {
             <p className="text-xs">Incoming customer reservations will appear here in real time.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead>
                 <tr className="bg-cellar-cream border-b border-cellar-border text-cellar-muted uppercase text-[10px] tracking-wider">
                   <th className="py-3 px-4 font-semibold">Order #</th>

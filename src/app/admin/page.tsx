@@ -146,8 +146,8 @@ export default async function AdminDashboardPage() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full text-left text-xs min-w-[620px]">
             <thead>
               <tr className="border-b border-cellar-border text-cellar-muted uppercase text-[10px] tracking-wider">
                 <th className="pb-3 font-semibold">Product Name</th>

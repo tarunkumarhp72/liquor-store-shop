@@ -55,10 +55,10 @@ export async function POST(req: NextRequest) {
     const slug = `${cleanName}-${Date.now().toString().slice(-6)}`;
 
     // Get category_id
-    const catRows = await query(`SELECT id FROM public.categories WHERE slug = $1 LIMIT 1;`, [category_slug]);
+    const catRows = await query<any>(`SELECT id FROM public.categories WHERE slug = $1 LIMIT 1;`, [category_slug]);
     const category_id = catRows[0]?.id || null;
 
-    const rows = await query(`
+    const rows = await query<any>(`
       INSERT INTO public.products (
         name, slug, category_slug, category_id, price, stock_quantity,
         is_in_stock, rating, abv, volume, country, region,
@@ -91,6 +91,90 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, product: rows[0] });
   } catch (err: any) {
     console.error('Error inserting product:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  const session = await getAdminSession(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const {
+      id,
+      name,
+      category_slug,
+      price,
+      stock_quantity,
+      is_in_stock,
+      rating,
+      abv,
+      volume,
+      country,
+      region,
+      image_url,
+      short_description,
+      featured,
+    } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+    }
+
+    // Get category_id if category_slug is provided
+    let category_id: string | null = null;
+    if (category_slug) {
+      const catRows = await query<any>(`SELECT id FROM public.categories WHERE slug = $1 LIMIT 1;`, [category_slug]);
+      category_id = catRows[0]?.id || null;
+    }
+
+    const rows = await query<any>(`
+      UPDATE public.products
+      SET name = COALESCE($1, name),
+          category_slug = COALESCE($2, category_slug),
+          category_id = COALESCE($3, category_id),
+          price = COALESCE($4, price),
+          stock_quantity = COALESCE($5, stock_quantity),
+          is_in_stock = COALESCE($6, is_in_stock),
+          rating = COALESCE($7, rating),
+          abv = COALESCE($8, abv),
+          volume = COALESCE($9, volume),
+          country = COALESCE($10, country),
+          region = COALESCE($11, region),
+          image_url = COALESCE($12, image_url),
+          short_description = COALESCE($13, short_description),
+          featured = COALESCE($14, featured),
+          updated_at = NOW()
+      WHERE id = $15
+      RETURNING *;
+    `, [
+      name ?? null,
+      category_slug ?? null,
+      category_id,
+      price !== undefined ? parseFloat(price) : null,
+      stock_quantity !== undefined ? parseInt(stock_quantity, 10) : null,
+      is_in_stock !== undefined ? Boolean(is_in_stock) : null,
+      rating !== undefined ? parseFloat(rating) : null,
+      abv ?? null,
+      volume ?? null,
+      country ?? null,
+      region ?? null,
+      image_url ?? null,
+      short_description ?? null,
+      featured !== undefined ? Boolean(featured) : null,
+      id,
+    ]);
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, product: rows[0] });
+  } catch (err: any) {
+    console.error('Error updating product:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
