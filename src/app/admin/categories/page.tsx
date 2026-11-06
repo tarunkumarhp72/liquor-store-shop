@@ -1,7 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Tag, Plus, Check, FolderPlus, Pencil, Trash2, X, AlertCircle, RotateCcw, Save, Loader2 } from 'lucide-react';
+import { 
+  Tag, 
+  Plus, 
+  Check, 
+  FolderPlus, 
+  Pencil, 
+  Trash2, 
+  X, 
+  AlertCircle, 
+  RotateCcw, 
+  Save, 
+  Loader2,
+  CheckCircle,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -9,6 +24,7 @@ export default function AdminCategoriesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // Editing state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -18,6 +34,7 @@ export default function AdminCategoriesPage() {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [toneClass, setToneClass] = useState('tone-wine');
+  const [isActive, setIsActive] = useState(true);
 
   const fetchCategories = () => {
     fetch('/api/admin/categories')
@@ -42,9 +59,9 @@ export default function AdminCategoriesPage() {
     setSlug(cat.slug || '');
     setDescription(cat.description || '');
     setToneClass(cat.tone_class || 'tone-wine');
+    setIsActive(cat.is_active !== false);
     setMessage('');
     setErrorMessage('');
-    // Scroll form into view on mobile
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -54,8 +71,31 @@ export default function AdminCategoriesPage() {
     setSlug('');
     setDescription('');
     setToneClass('tone-wine');
+    setIsActive(true);
     setMessage('');
     setErrorMessage('');
+  };
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    setTogglingId(id);
+    try {
+      const res = await fetch('/api/admin/categories', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_active: !currentStatus }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, is_active: !currentStatus } : c))
+        );
+        setMessage(`Category status updated to ${!currentStatus ? 'Active' : 'Inactive'}!`);
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to toggle status');
+    } finally {
+      setTogglingId(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +110,14 @@ export default function AdminCategoriesPage() {
         const res = await fetch('/api/admin/categories', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editingId, name, slug, description, tone_class: toneClass }),
+          body: JSON.stringify({ 
+            id: editingId, 
+            name, 
+            slug, 
+            description, 
+            tone_class: toneClass,
+            is_active: isActive 
+          }),
         });
 
         const data = await res.json();
@@ -84,7 +131,13 @@ export default function AdminCategoriesPage() {
         const res = await fetch('/api/admin/categories', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, slug, description, tone_class: toneClass }),
+          body: JSON.stringify({ 
+            name, 
+            slug, 
+            description, 
+            tone_class: toneClass,
+            is_active: isActive 
+          }),
         });
 
         const data = await res.json();
@@ -94,6 +147,7 @@ export default function AdminCategoriesPage() {
         setName('');
         setSlug('');
         setDescription('');
+        setIsActive(true);
         fetchCategories();
       }
     } catch (err: any) {
@@ -129,7 +183,7 @@ export default function AdminCategoriesPage() {
           Manage Cellar Categories
         </h1>
         <p className="text-xs text-cellar-muted mt-1 max-w-2xl">
-          Create, edit, or remove product categories, customize card tone themes, and track bottle distributions across the cellar.
+          Create, edit, toggle active/inactive status, or remove product categories.
         </p>
       </div>
 
@@ -224,6 +278,18 @@ export default function AdminCategoriesPage() {
               />
             </div>
 
+            <div className="pt-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="w-4 h-4 rounded text-wine-700"
+                />
+                <span className="font-semibold text-cellar-charcoal">Category is Active in Storefront</span>
+              </label>
+            </div>
+
             <div className="flex items-center gap-2 pt-2">
               <button
                 type="submit"
@@ -273,11 +339,12 @@ export default function AdminCategoriesPage() {
           </div>
 
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full text-left text-xs min-w-[500px]">
+            <table className="w-full text-left text-xs min-w-[550px]">
               <thead>
                 <tr className="border-b border-cellar-border text-cellar-muted uppercase text-[10px] tracking-wider bg-cellar-cream/60">
                   <th className="py-2.5 px-3 font-semibold">Name & Details</th>
                   <th className="py-2.5 px-3 font-semibold">Slug</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Status</th>
                   <th className="py-2.5 px-3 font-semibold text-center">Bottles</th>
                   <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
                 </tr>
@@ -285,6 +352,7 @@ export default function AdminCategoriesPage() {
               <tbody className="divide-y divide-cellar-border/60">
                 {categories.map((c) => {
                   const isCurrentEditing = editingId === c.id;
+                  const active = c.is_active !== false;
                   return (
                     <tr
                       key={c.id}
@@ -310,6 +378,33 @@ export default function AdminCategoriesPage() {
                       {/* Slug */}
                       <td className="py-3 px-3 font-mono text-[11px] text-cellar-muted whitespace-nowrap">
                         {c.slug}
+                      </td>
+
+                      {/* Active / Inactive Status Toggle Pill */}
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleStatus(c.id, active)}
+                          disabled={togglingId === c.id}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 transition cursor-pointer shadow-2xs ${
+                            active
+                              ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300'
+                              : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600 border border-zinc-300'
+                          }`}
+                          title="Click to toggle Active / Inactive status"
+                        >
+                          {active ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-700" />
+                              <span>Active</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3 h-3 text-zinc-500" />
+                              <span>Inactive</span>
+                            </>
+                          )}
+                        </button>
                       </td>
 
                       {/* Bottle Count */}

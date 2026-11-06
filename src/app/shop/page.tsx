@@ -26,6 +26,7 @@ async function getCategoriesWithCounts(): Promise<CategoryWithCount[]> {
       SELECT c.id, c.name, c.slug, c.description, COUNT(p.id)::int as product_count
       FROM public.categories c
       LEFT JOIN public.products p ON c.slug = p.category_slug
+      WHERE COALESCE(c.is_active, true) = true
       GROUP BY c.id, c.name, c.slug, c.description, c.sort_order
       ORDER BY c.sort_order ASC;
     `);

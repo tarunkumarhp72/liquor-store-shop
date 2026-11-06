@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { name, slug, description, tone_class } = await req.json();
+    const { name, slug, description, tone_class, is_active } = await req.json();
 
     if (!name) {
       return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
@@ -36,12 +36,12 @@ export async function POST(req: NextRequest) {
       .replace(/(^-|-$)+/g, '');
 
     const rows = await query<any>(`
-      INSERT INTO public.categories (name, slug, description, tone_class, sort_order)
-      VALUES ($1, $2, $3, $4, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM public.categories))
+      INSERT INTO public.categories (name, slug, description, tone_class, is_active, sort_order)
+      VALUES ($1, $2, $3, $4, $5, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM public.categories))
       ON CONFLICT (slug) DO UPDATE
-      SET name = EXCLUDED.name, description = EXCLUDED.description, tone_class = EXCLUDED.tone_class
+      SET name = EXCLUDED.name, description = EXCLUDED.description, tone_class = EXCLUDED.tone_class, is_active = EXCLUDED.is_active
       RETURNING *;
-    `, [name, cleanSlug, description || '', tone_class || 'tone-wine']);
+    `, [name, cleanSlug, description || '', tone_class || 'tone-wine', is_active !== false]);
 
     return NextResponse.json({ success: true, category: rows[0] });
   } catch (err: any) {
@@ -56,10 +56,26 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    const { id, name, slug, description, tone_class } = await req.json();
+    const body = await req.json();
+    const { id, name, slug, description, tone_class, is_active } = body;
 
-    if (!id || !name) {
-      return NextResponse.json({ error: 'Category ID and Name are required' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
+    }
+
+    // Quick toggle case: if only is_active is being updated
+    if (name === undefined && is_active !== undefined) {
+      const rows = await query<any>(`
+        UPDATE public.categories
+        SET is_active = $1
+        WHERE id = $2
+        RETURNING *;
+      `, [Boolean(is_active), id]);
+      return NextResponse.json({ success: true, category: rows[0] });
+    }
+
+    if (!name) {
+      return NextResponse.json({ error: 'Category Name is required' }, { status: 400 });
     }
 
     const cleanSlug = (slug || name)
@@ -72,10 +88,18 @@ export async function PUT(req: NextRequest) {
       SET name = $1,
           slug = $2,
           description = $3,
-          tone_class = $4
-      WHERE id = $5
+          tone_class = $4,
+          is_active = COALESCE($5, is_active)
+      WHERE id = $6
       RETURNING *;
-    `, [name, cleanSlug, description || '', tone_class || 'tone-wine', id]);
+    `, [
+      name,
+      cleanSlug,
+      description || '',
+      tone_class || 'tone-wine',
+      is_active !== undefined ? Boolean(is_active) : null,
+      id
+    ]);
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
