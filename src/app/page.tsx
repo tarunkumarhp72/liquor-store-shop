@@ -123,7 +123,7 @@ export default async function HomePage() {
               href="/shop"
               className="text-xs font-bold text-wine-700 hover:text-wine-800 transition flex items-center gap-1"
             >
-              <span>View All Bottles & Drinks</span>
+              <span>View All 130+ Bottles</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
