@@ -52,6 +52,10 @@ const categoryMetaMap: Record<string, { title: string; desc: string }> = {
     title: 'Spiced & Aged Rum Collection | Calgary NW',
     desc: 'Dark, spiced, and white rums for cocktails and sipping. Order online from MH2 Liquor Store Calgary.',
   },
+  'non-alcoholic': {
+    title: 'Non-Alcoholic Drinks, Sodas & Mixers | Calgary NW',
+    desc: 'Chilled energy drinks, juices, sodas, and cocktail mixers ready for 15-minute pickup or late delivery at MH2 Liquor Store.',
+  },
 };
 
 export async function generateMetadata({ searchParams }: ShopProps): Promise<Metadata> {

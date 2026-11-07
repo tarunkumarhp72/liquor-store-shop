@@ -32,6 +32,7 @@ skills-lock.json
 # 5. Local Data & Migration Scripts
 downloaded_images/
 scripts/
+backups/
 /public/uploads/*
 !/public/uploads/.gitkeep
 

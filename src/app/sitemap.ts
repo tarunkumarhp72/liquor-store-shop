@@ -43,14 +43,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 2. Category Landing Pages
   const categories = [
+    'beer',
+    'vodka',
+    'non-alcoholic',
     'wine',
-    'champagne',
     'whiskey',
     'tequila',
-    'vodka',
+    'champagne',
     'gins',
     'rums',
-    'beer',
   ];
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
