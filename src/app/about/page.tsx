@@ -1,6 +1,22 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Wine, Clock, Star, MapPin, Heart } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'About Our Cellar | Neighbourhood Bottle Shop in Calgary NW',
+  description:
+    'Learn about MH2 Liquor Store on 4th Street NW, Calgary. Our heritage, curated bottle allocations, and commitment to service open late 7 days a week until 2 AM.',
+  alternates: {
+    canonical: 'https://www.mh2liquorstore.ca/about',
+  },
+  openGraph: {
+    title: 'About MH2 Liquor Store | NW Calgary Bottle Shop',
+    description:
+      'Learn about MH2 Liquor Store on 4th Street NW, Calgary. Curated wines, spirits, and craft beers open late.',
+    url: 'https://www.mh2liquorstore.ca/about',
+  },
+};
 
 export default function AboutPage() {
   return (

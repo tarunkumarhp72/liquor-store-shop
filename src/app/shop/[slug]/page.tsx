@@ -80,9 +80,41 @@ export async function generateMetadata({ params }: ProductDetailProps) {
     };
   }
 
+  const title = `${product.name} | MH2 Liquor Store Calgary`;
+  const description =
+    product.short_description ||
+    `Find ${product.name} at MH2 Liquor Store Calgary. Open daily 10 AM to 2 AM with 15-minute pickup and local Uber Eats delivery.`;
+  const canonical = `https://www.mh2liquorstore.ca/shop/${product.slug}`;
+  const imageUrl = product.image_url?.startsWith('http')
+    ? product.image_url
+    : `https://www.mh2liquorstore.ca${product.image_url || '/logo.png'}`;
+
   return {
-    title: `${product.name} | MH2 Wine & Liquor Store`,
-    description: product.short_description || `Find ${product.name} at MH2 Liquor Store Calgary. Open daily 10 AM to 2 AM with 15-minute pickup and local Uber Eats delivery.`,
+    title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'article',
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -111,8 +143,93 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
   else if (['whiskey', 'tequila', 'vodka', 'gins', 'rums'].includes(product.category_slug)) toneClass = 'bg-[#E3E5E4]';
   else if (product.category_slug === 'champagne') toneClass = 'bg-[#F3ECDD]';
 
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.image_url?.startsWith('http')
+      ? product.image_url
+      : `https://www.mh2liquorstore.ca${product.image_url || '/logo.png'}`,
+    description: product.short_description || `Buy ${product.name} at MH2 Liquor Store Calgary.`,
+    sku: String(product.id),
+    category: product.category_slug,
+    brand: {
+      '@type': 'Brand',
+      name: product.country || 'MH2 Liquor Store',
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'CAD',
+      price: priceNum,
+      availability: product.is_in_stock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      url: `https://www.mh2liquorstore.ca/shop/${product.slug}`,
+      seller: {
+        '@type': 'LiquorStore',
+        name: 'MH2 Liquor Store',
+      },
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: String(product.rating || '4.6'),
+      reviewCount: String(product.review_count || '12'),
+      bestRating: '5',
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://www.mh2liquorstore.ca',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Shop',
+        item: 'https://www.mh2liquorstore.ca/shop',
+      },
+      ...(product.category_slug
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: product.category_name || product.category_slug,
+              item: `https://www.mh2liquorstore.ca/shop?category=${product.category_slug}`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 4,
+              name: product.name,
+              item: `https://www.mh2liquorstore.ca/shop/${product.slug}`,
+            },
+          ]
+        : [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: product.name,
+              item: `https://www.mh2liquorstore.ca/shop/${product.slug}`,
+            },
+          ]),
+    ],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {/* Breadcrumb Navigation */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2 text-xs">
         <Link

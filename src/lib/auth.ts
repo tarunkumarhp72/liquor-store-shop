@@ -5,7 +5,10 @@ const COOKIE_NAME = 'mh2_admin_session';
 const SECRET = process.env.ADMIN_JWT_SECRET || 'mh2_wine_liquor_secret_session_key_2026';
 
 // PBKDF2 hash verification matching our python seed
-export function verifyPassword(password: string, storedHash: string): boolean {
+export function verifyPassword(password: string, storedHash?: string | null): boolean {
+  if (!password || !storedHash || typeof storedHash !== 'string') {
+    return false;
+  }
   try {
     const parts = storedHash.split(':');
     if (parts.length !== 2) return false;

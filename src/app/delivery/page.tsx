@@ -1,12 +1,71 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Truck, Store, Clock, ShieldCheck, MapPin, Phone, ExternalLink } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Fast Curbside Pickup & Late Night Delivery | Calgary NW',
+  description:
+    '15-minute curbside pickup on 4th Street NW with free dedicated customer parking. Fast Uber Eats delivery open daily until 2:00 AM.',
+  alternates: {
+    canonical: 'https://www.mh2liquorstore.ca/delivery',
+  },
+  openGraph: {
+    title: 'Fast Curbside Pickup & Late Night Delivery | MH2 Liquor Store',
+    description:
+      '15-minute curbside pickup on 4th Street NW with free dedicated customer parking. Fast Uber Eats delivery open daily until 2:00 AM.',
+    url: 'https://www.mh2liquorstore.ca/delivery',
+  },
+};
+
+const deliveryFaqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What are MH2 Liquor Store hours in Calgary NW?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'MH2 Liquor Store is open 7 days a week from 10:00 AM to 2:00 AM, 365 days a year including all major holidays.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How fast is curbside pickup at MH2 Liquor Store?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Curbside and in-store pickup orders are ready within 15 minutes. Free dedicated customer parking stalls are available directly in front of the store at 3106 A 4 St NW, Calgary.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does MH2 Liquor Store deliver alcohol late at night in Calgary?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, we provide late-night delivery through Uber Eats across NW Calgary until 2:00 AM every night.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is age verification (18+) required for alcohol pickup and delivery in Alberta?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, valid government photo ID verifying age (18+) is required for all in-store pickups and Uber Eats deliveries in compliance with Alberta liquor regulations.',
+      },
+    },
+  ],
+};
 
 export default function DeliveryPage() {
   const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(deliveryFaqSchema) }}
+      />
       <div className="border-b border-cellar-border pb-6">
         <div className="text-xs font-bold tracking-widest uppercase text-gold-700 mb-1">
           Fulfillment Services

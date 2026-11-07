@@ -54,6 +54,11 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6 sm:space-y-12 pb-16">
+      {/* Primary Semantic Store Heading for Google Crawlers */}
+      <h1 className="sr-only">
+        MH2 Liquor Store | Wine, Spirits & Cold Craft Beer Bottle Shop in Calgary NW (3106 4th St NW)
+      </h1>
+
       {/* 1. Hero Carousel - GotoLiquorStore-style neat, clean promotional banner */}
       <HeroSlider />
 

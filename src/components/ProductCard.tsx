@@ -20,6 +20,7 @@ export interface Product {
   country: string;
   region: string;
   image_url: string;
+  category_name?: string;
   short_description?: string;
   tone_class?: string;
 }

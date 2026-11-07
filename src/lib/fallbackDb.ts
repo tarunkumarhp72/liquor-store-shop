@@ -124,6 +124,11 @@ export function handleFallbackQuery<T = any>(text: string, params: any[] = []): 
   const q = text.toLowerCase();
   const products = getFallbackProducts();
 
+  // 0. Admin & Sensitive queries - NEVER mock credentials or user data
+  if (q.includes('admin_users') || q.includes('orders')) {
+    return [] as unknown as T[];
+  }
+
   // 1. Categories query
   if (q.includes('from public.categories') || q.includes('from categories')) {
     const counts: Record<string, number> = {};

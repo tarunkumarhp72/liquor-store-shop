@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     let isValid = false;
     let admin = null;
 
-    if (rows.length === 0) {
+    if (rows.length === 0 || !rows[0] || !rows[0].password_hash) {
       // Execute dummy password verification to maintain uniform response time (timing-attack prevention)
       verifyPassword(password, DUMMY_HASH);
     } else {
