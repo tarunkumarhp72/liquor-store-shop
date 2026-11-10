@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 // Preset luxury color card tones for categories
-export const COLOR_CARDS = [
+const COLOR_CARDS = [
   {
     id: 'tone-wine',
     name: 'Pale Burgundy',

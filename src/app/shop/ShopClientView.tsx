@@ -1,23 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Search, 
   SlidersHorizontal, 
   X, 
-  Check, 
   ChevronDown, 
   RotateCcw, 
   Phone, 
   Wine, 
-  Sparkles,
-  CheckSquare,
-  Square,
-  Filter
+  ArrowUp
 } from 'lucide-react';
 import CallStoreModal from '@/components/CallStoreModal';
+import ProductCard, { Product } from '@/components/ProductCard';
 
 export interface CategoryWithCount {
   id: string;
@@ -31,9 +28,8 @@ interface ShopClientViewProps {
   categories: CategoryWithCount[];
   allBottlesCount: number;
   totalFilteredCount: number;
-  currentPage: number;
-  totalPages: number;
-  children: React.ReactNode;
+  initialProducts: Product[];
+  initialHasMore: boolean;
 }
 
 const priceRanges = [
@@ -55,9 +51,8 @@ export default function ShopClientView({
   categories,
   allBottlesCount,
   totalFilteredCount,
-  currentPage,
-  totalPages,
-  children,
+  initialProducts,
+  initialHasMore,
 }: ShopClientViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -65,6 +60,13 @@ export default function ShopClientView({
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [callModalOpen, setCallModalOpen] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
+
+  // Infinite Scroll States
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const currentCategory = searchParams.get('category') || 'all';
   const currentSearch = searchParams.get('search') || '';
@@ -79,6 +81,14 @@ export default function ShopClientView({
     (inStockOnly ? 1 : 0) +
     (currentPriceRange !== 'all' ? 1 : 0) +
     (currentSort !== 'featured' ? 1 : 0);
+
+  // Sync products when initialProducts change (e.g. filter change via router.push)
+  useEffect(() => {
+    setProducts(initialProducts);
+    setPage(1);
+    setHasMore(initialHasMore);
+    setIsLoadingMore(false);
+  }, [initialProducts, initialHasMore]);
 
   // Sync search input with URL
   useEffect(() => {
@@ -104,8 +114,14 @@ export default function ShopClientView({
     } else {
       params.delete(key);
     }
-    params.set('page', '1'); // Reset to page 1 on filter change
-    router.push(`/shop?${params.toString()}`);
+    params.delete('page'); // Reset pagination to initial batch
+
+    // If user scrolled down far, smoothly scroll to top of catalog
+    if (typeof window !== 'undefined' && window.scrollY > 350) {
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    router.push(`/shop?${params.toString()}`, { scroll: false });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -114,17 +130,80 @@ export default function ShopClientView({
   };
 
   const clearAllFilters = () => {
-    router.push('/shop');
+    if (typeof window !== 'undefined' && window.scrollY > 350) {
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+    router.push('/shop', { scroll: false });
     setSearchInput('');
     setMobileDrawerOpen(false);
   };
+
+  // Cursor / Infinite Scroll Loading Logic
+  const loadMoreProducts = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    const nextPage = page + 1;
+
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', String(nextPage));
+      params.set('limit', '16');
+
+      const response = await fetch(`/api/products?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to load more products');
+
+      const data = await response.json();
+      const newItems: Product[] = data.products || [];
+
+      if (newItems.length > 0) {
+        setProducts((prev) => {
+          const seen = new Set(prev.map((p) => p.id));
+          const uniqueNew = newItems.filter((p) => !seen.has(p.id));
+          return [...prev, ...uniqueNew];
+        });
+        setPage(nextPage);
+        setHasMore(Boolean(data.hasMore));
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Error in cursor scroll pagination:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, page, searchParams]);
+
+  // IntersectionObserver to auto-trigger when approaching bottom
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && hasMore) {
+          loadMoreProducts();
+        }
+      },
+      {
+        rootMargin: '400px 0px', // Fetch ahead before user hits the bottom
+        threshold: 0.05,
+      }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadMoreProducts, hasMore, isLoadingMore]);
 
   const activeCategoryObj = categories.find((c) => c.slug === currentCategory);
 
   // Reusable Filter Content (Used in Desktop Left Sidebar & Mobile Slide-Out Drawer)
   const FilterContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="space-y-6">
-      {/* Category Section - Amazon / Right Liquor Style */}
+      {/* Category Section */}
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-cellar-charcoal flex items-center gap-1.5">
@@ -344,7 +423,7 @@ export default function ShopClientView({
         {/* Top Search & Filter Bar (Web & Mobile) */}
         <div className="bg-white border border-cellar-border rounded-lg p-2.5 sm:p-4 mb-6 shadow-xs">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4">
-            {/* Search Input Bar - Top Full Width / Left on desktop */}
+            {/* Search Input Bar */}
             <form onSubmit={handleSearchSubmit} className="relative flex-1">
               <input
                 type="text"
@@ -376,7 +455,7 @@ export default function ShopClientView({
 
             {/* Mobile Filter Trigger Button & Sort Dropdown */}
             <div className="flex items-center justify-between sm:justify-end gap-2">
-              {/* Mobile Filter Button (Opens Left Slide-Out Drawer) */}
+              {/* Mobile Filter Button */}
               <button
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
@@ -476,10 +555,10 @@ export default function ShopClientView({
           )}
         </div>
 
-        {/* 2-Column Main Layout: Desktop Left Sidebar + Right Products Grid */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-          {/* Desktop Left Sidebar (Amazon & Right Liquor Style) */}
-          <aside className="hidden lg:block w-64 xl:w-72 shrink-0 bg-white border border-cellar-border rounded-lg p-5 shadow-xs sticky top-24">
+        {/* 2-Column Main Layout: Sticky Desktop Left Sidebar + Right Products Grid */}
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start relative">
+          {/* Desktop Left Sidebar: Sticky & Pin-Fixed in Viewport */}
+          <aside className="hidden lg:block w-64 xl:w-72 shrink-0 bg-white border border-cellar-border rounded-lg p-5 shadow-xs sticky top-20 self-start max-h-[calc(100vh-5.5rem)] overflow-y-auto overscroll-contain pr-1.5 scrollbar-thin z-20">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-cellar-border">
               <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider text-cellar-charcoal">
                 <SlidersHorizontal className="w-4 h-4 text-wine-700" />
@@ -498,26 +577,90 @@ export default function ShopClientView({
             <FilterContent />
           </aside>
 
-          {/* Right Product Grid Area */}
+          {/* Right Product Grid Area: Cursor / Infinite Scroll Feed */}
           <main className="flex-1 min-w-0 w-full">
             {/* Results Counter Bar */}
             <div className="flex items-center justify-between text-xs text-cellar-muted mb-4 px-1">
               <div>
-                Showing <strong>{totalFilteredCount}</strong> bottle{totalFilteredCount === 1 ? '' : 's'}
+                Showing <strong>{products.length}</strong> of <strong>{totalFilteredCount}</strong> bottle{totalFilteredCount === 1 ? '' : 's'}
                 {currentSearch && <span> matching &ldquo;{currentSearch}&rdquo;</span>}
               </div>
-              <div>
-                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+              <div className="flex items-center gap-2">
+                {isLoadingMore ? (
+                  <span className="inline-flex items-center gap-1.5 text-wine-700 font-semibold text-xs animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-wine-700 animate-ping" />
+                    Loading more bottles...
+                  </span>
+                ) : hasMore ? (
+                  <span className="text-[11px] text-cellar-muted">
+                    Scroll down for more
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-emerald-700 font-semibold">
+                    All {totalFilteredCount} bottles displayed
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* The Products (Rendered Server-side) */}
-            {children}
+            {/* Product Cards Grid Area */}
+            {products.length === 0 && !isLoadingMore ? (
+              <div className="bg-white border border-cellar-border p-8 sm:p-12 text-center rounded-lg space-y-3">
+                <p className="disp text-2xl font-bold text-cellar-charcoal">No bottles found</p>
+                <p className="text-xs text-cellar-muted max-w-sm mx-auto">
+                  Try adjusting your search query, selecting another category, or resetting all filters.
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    className="px-5 py-2.5 bg-wine-700 hover:bg-wine-800 text-white text-xs font-bold uppercase rounded-md inline-flex items-center gap-1.5 transition"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset All Filters</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5">
+                {products.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )}
+
+            {/* Infinite Scroll Sentinel & Bottom Loading / End Status */}
+            <div ref={sentinelRef} className="w-full py-6 flex flex-col items-center justify-center min-h-[80px]">
+              {isLoadingMore && (
+                <div className="flex flex-col items-center gap-2 py-4">
+                  <div className="w-8 h-8 border-3 border-wine-700/20 border-t-wine-700 rounded-full animate-spin" />
+                  <p className="text-xs font-semibold text-cellar-muted tracking-wide">
+                    Loading more bottles from the cellar...
+                  </p>
+                </div>
+              )}
+
+              {!hasMore && products.length > 0 && (
+                <div className="w-full border-t border-cellar-border/60 mt-6 pt-6 text-center space-y-2">
+                  <p className="text-xs font-semibold text-cellar-muted">
+                    Showing all {totalFilteredCount} bottles &bull; You&apos;ve reached the end
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-wine-700 hover:text-wine-900 transition py-1 px-3 rounded-md bg-wine-50 border border-wine-200 hover:bg-wine-100"
+                  >
+                    <ArrowUp className="w-3 h-3" />
+                    <span>Back to Top</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </main>
         </div>
       </div>
 
-      {/* Mobile Slide-Out Left Drawer (Right Liquor Mobile Style) */}
+      {/* Mobile Slide-Out Left Drawer */}
       {mobileDrawerOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           {/* Backdrop Blur Overlay */}
