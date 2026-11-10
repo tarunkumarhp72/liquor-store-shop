@@ -86,6 +86,10 @@ const nextConfig = {
       },
     ],
   },
+  // Versioning for CSS and JS assets: generates unique build ID on every release for instant cache-busting
+  generateBuildId: async () => {
+    return `mh2-v${Date.now()}`;
+  },
   async headers() {
     return [
       {

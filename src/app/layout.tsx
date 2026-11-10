@@ -92,6 +92,10 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
+  other: {
+    'css-version': '1.0.4',
+    'build-version': '1.0.4',
+  },
 };
 
 export const viewport: Viewport = {

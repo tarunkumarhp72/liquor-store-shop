@@ -70,6 +70,19 @@ export default function ShopClientView({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
+  // Synchronous guard refs to prevent duplicate fetches & race conditions
+  const isFetchingRef = useRef(false);
+  const pageRef = useRef(page);
+  const hasMoreRef = useRef(hasMore);
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
+
   const currentCategory = searchParams.get('category') || 'all';
   const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('sort') || 'featured';
@@ -88,8 +101,11 @@ export default function ShopClientView({
   useEffect(() => {
     setProducts(initialProducts);
     setPage(1);
+    pageRef.current = 1;
     setHasMore(initialHasMore);
+    hasMoreRef.current = initialHasMore;
     setIsLoadingMore(false);
+    isFetchingRef.current = false;
   }, [initialProducts, initialHasMore]);
 
   // Sync search input with URL
@@ -144,12 +160,14 @@ export default function ShopClientView({
     });
   };
 
-  // Cursor / Infinite Scroll Loading Logic (Flicker-Free)
+  // Cursor / Infinite Scroll Loading Logic (Flicker-Free & Loop-Protected)
   const loadMoreProducts = useCallback(async () => {
-    if (isLoadingMore || !hasMore) return;
+    // Guard against race conditions and redundant fetches
+    if (isFetchingRef.current || !hasMoreRef.current) return;
 
+    isFetchingRef.current = true;
     setIsLoadingMore(true);
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
 
     try {
       const params = new URLSearchParams(searchParams.toString());
@@ -162,23 +180,45 @@ export default function ShopClientView({
       const data = await response.json();
       const newItems: Product[] = data.products || [];
 
-      if (newItems.length > 0) {
+      if (newItems.length === 0) {
+        setHasMore(false);
+        hasMoreRef.current = false;
+      } else {
+        let reachedEnd = false;
         setProducts((prev) => {
           const seen = new Set(prev.map((p) => p.id));
           const uniqueNew = newItems.filter((p) => !seen.has(p.id));
-          return [...prev, ...uniqueNew];
+
+          // If all returned items were already in list, we reached the end
+          if (uniqueNew.length === 0) {
+            reachedEnd = true;
+            return prev;
+          }
+
+          const combined = [...prev, ...uniqueNew];
+          if (combined.length >= (data.totalCount || totalFilteredCount) || !data.hasMore) {
+            reachedEnd = true;
+          }
+          return combined;
         });
-        setPage(nextPage);
-        setHasMore(Boolean(data.hasMore));
-      } else {
-        setHasMore(false);
+
+        if (reachedEnd || !data.hasMore) {
+          setHasMore(false);
+          hasMoreRef.current = false;
+        } else {
+          setPage(nextPage);
+          pageRef.current = nextPage;
+        }
       }
     } catch (err) {
       console.error('Error in cursor scroll pagination:', err);
+      setHasMore(false);
+      hasMoreRef.current = false;
     } finally {
       setIsLoadingMore(false);
+      isFetchingRef.current = false;
     }
-  }, [isLoadingMore, hasMore, page, searchParams]);
+  }, [searchParams, totalFilteredCount]);
 
   // IntersectionObserver to auto-trigger ahead of time (Flicker-Free)
   useEffect(() => {
@@ -187,13 +227,13 @@ export default function ShopClientView({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore && hasMore) {
+        if (entries[0].isIntersecting && !isFetchingRef.current && hasMoreRef.current) {
           loadMoreProducts();
         }
       },
       {
-        rootMargin: '500px 0px', // Fetch well before bottom to eliminate waiting and flicker
-        threshold: 0.05,
+        rootMargin: '250px 0px', // Fetch smoothly before bottom without oscillation
+        threshold: 0.1,
       }
     );
 
@@ -202,7 +242,7 @@ export default function ShopClientView({
     return () => {
       observer.disconnect();
     };
-  }, [loadMoreProducts, hasMore, isLoadingMore]);
+  }, [loadMoreProducts, hasMore, products.length]);
 
   const activeCategoryObj = categories.find((c) => c.slug === currentCategory);
 
@@ -637,45 +677,42 @@ export default function ShopClientView({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3 sm:gap-5">
                 {products.map((p) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: 'easeOut' }}
-                    className="h-full"
-                  >
+                  <div key={p.id} className="h-full">
                     <ProductCard product={p} />
-                  </motion.div>
+                  </div>
                 ))}
-
-                {/* In-Grid Skeletons during Infinite Scroll - Eliminates Jumps & Flicker */}
-                {isLoadingMore && (
-                  <>
-                    <ProductCardSkeleton />
-                    <ProductCardSkeleton />
-                    <ProductCardSkeleton />
-                    <ProductCardSkeleton />
-                    <ProductCardSkeleton />
-                  </>
-                )}
               </div>
             )}
 
-            {/* Invisible Infinite Scroll Sentinel Trigger */}
-            <div ref={sentinelRef} className="w-full h-8 -mt-20 pointer-events-none" />
+            {/* Smooth Non-Flickering Loader when fetching next page */}
+            {isLoadingMore && (
+              <div className="w-full py-8 flex flex-col items-center justify-center gap-2.5 animate-in fade-in duration-200">
+                <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 border border-cellar-border shadow-xs">
+                  <span className="w-4 h-4 border-2 border-wine-700 border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span className="text-xs font-semibold text-cellar-charcoal tracking-wide">
+                    Loading cellar bottles...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Infinite Scroll Sentinel Trigger (Only in DOM when more items exist) */}
+            {hasMore && (
+              <div ref={sentinelRef} className="w-full h-12 pointer-events-none" />
+            )}
 
             {/* End of Collection Status */}
             {!hasMore && products.length > 0 && (
               <div className="w-full border-t border-cellar-border/60 mt-8 pt-6 text-center space-y-2">
                 <p className="text-xs font-semibold text-cellar-muted">
-                  Showing all {totalFilteredCount} bottles &bull; You&apos;ve reached the end
+                  Showing all {products.length} bottles &bull; You&apos;ve reached the end
                 </p>
                 <button
                   type="button"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-wine-700 hover:text-wine-900 transition py-1.5 px-3.5 rounded-md bg-wine-50 border border-wine-200 hover:bg-wine-100 shadow-2xs"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-wine-700 hover:text-wine-900 transition py-1.5 px-4 rounded-md bg-wine-50 border border-wine-200 hover:bg-wine-100 shadow-2xs"
                 >
-                  <ArrowUp className="w-3 h-3" />
+                  <ArrowUp className="w-3.5 h-3.5" />
                   <span>Back to Top</span>
                 </button>
               </div>
