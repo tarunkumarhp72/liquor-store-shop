@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useTransition } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { Search, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard, { Product } from './ProductCard';
+import ProductCardSkeleton from './ProductCardSkeleton';
 
 interface HomeShopTabsProps {
   categories: any[];
@@ -13,6 +15,7 @@ interface HomeShopTabsProps {
 export default function HomeShopTabs({ categories, products }: HomeShopTabsProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPending, startTransition] = useTransition();
   const tabsRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -32,9 +35,15 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
 
   const scrollTabs = (direction: 'left' | 'right') => {
     if (!tabsRef.current) return;
-    const amount = direction === 'left' ? -200 : 200;
+    const amount = direction === 'left' ? -220 : 220;
     tabsRef.current.scrollBy({ left: amount, behavior: 'smooth' });
     setTimeout(checkTabScroll, 250);
+  };
+
+  const handleTabChange = (slug: string) => {
+    startTransition(() => {
+      setActiveTab(slug);
+    });
   };
 
   // Filter products by selected tab and search
@@ -52,28 +61,32 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
     <div className="space-y-6">
       {/* Category Tabs & Quick Search */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-cellar-border pb-4">
-        {/* Horizontal Category Tabs with Smooth Scroll Controls */}
-        <div className="relative flex-1 min-w-0">
-          {/* Left Arrow (Desktop/Tablet) */}
+        {/* Horizontal Category Tabs with Smooth Scroll Controls & No-Cut Padding */}
+        <div className="relative flex-1 min-w-0 flex items-center">
+          {/* Left Arrow Button with subtle gradient backdrop */}
           {canScrollLeft && (
-            <button
-              onClick={() => scrollTabs('left')}
-              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-cellar-border shadow-md items-center justify-center text-cellar-charcoal hover:text-wine-700 transition"
-              aria-label="Scroll categories left"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+            <div className="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 items-center pr-3 bg-gradient-to-r from-[#F8F5EF] via-[#F8F5EF]/95 to-transparent">
+              <button
+                type="button"
+                onClick={() => scrollTabs('left')}
+                className="w-7 h-7 rounded-full bg-white border border-cellar-border shadow-md flex items-center justify-center text-cellar-charcoal hover:text-wine-700 hover:border-gold-500 transition active:scale-95"
+                aria-label="Scroll categories left"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </div>
           )}
 
-          {/* Scrollable Tabs Track */}
+          {/* Scrollable Tabs Track with adequate padding so content is never cut off */}
           <div
             ref={tabsRef}
             onScroll={checkTabScroll}
-            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none px-1 touch-pan-x scroll-smooth"
+            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none px-2 sm:px-10 touch-pan-x scroll-smooth w-full"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             <button
-              onClick={() => setActiveTab('all')}
+              type="button"
+              onClick={() => handleTabChange('all')}
               className={`min-h-[38px] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition whitespace-nowrap active:scale-95 shrink-0 ${
                 activeTab === 'all'
                   ? 'bg-wine-700 text-white shadow-xs'
@@ -85,7 +98,8 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setActiveTab(cat.slug)}
+                type="button"
+                onClick={() => handleTabChange(cat.slug)}
                 className={`min-h-[38px] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition whitespace-nowrap active:scale-95 shrink-0 ${
                   activeTab === cat.slug
                     ? 'bg-wine-700 text-white shadow-xs'
@@ -97,18 +111,18 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
             ))}
           </div>
 
-          {/* Right Fade Mask & Arrow (Shows user there's more to scroll) */}
+          {/* Right Arrow Button with subtle gradient backdrop */}
           {canScrollRight && (
-            <>
-              <div className="pointer-events-none absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-[#F8F5EF] to-transparent sm:hidden" />
+            <div className="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 items-center pl-3 bg-gradient-to-l from-[#F8F5EF] via-[#F8F5EF]/95 to-transparent">
               <button
+                type="button"
                 onClick={() => scrollTabs('right')}
-                className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/95 border border-cellar-border shadow-md items-center justify-center text-cellar-charcoal hover:text-wine-700 transition"
+                className="w-7 h-7 rounded-full bg-white border border-cellar-border shadow-md flex items-center justify-center text-cellar-charcoal hover:text-wine-700 hover:border-gold-500 transition active:scale-95"
                 aria-label="Scroll categories right"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-            </>
+            </div>
           )}
         </div>
 
@@ -124,6 +138,7 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
           <Search className="w-3.5 h-3.5 text-cellar-muted absolute left-3 top-3 sm:top-2.5" />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery('')}
               className="absolute right-2.5 top-2.5 sm:top-2 text-stone-400 hover:text-cellar-charcoal p-0.5"
               aria-label="Clear filter"
@@ -134,15 +149,29 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
         </div>
       </div>
 
-      {/* 2-Column Mobile Grid, 3-Col Tablet, 4-Col Desktop */}
-      {filteredProducts.length === 0 ? (
+      {/* Skeletons when transitioning tabs OR Products Grid */}
+      {isPending ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ProductCardSkeleton key={`home-skel-${i}`} />
+          ))}
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="p-10 bg-white border border-cellar-border text-center rounded-sm text-cellar-muted text-xs">
           No bottles found matching your filter.
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {filteredProducts.slice(0, 8).map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="h-full"
+            >
+              <ProductCard product={p} />
+            </motion.div>
           ))}
         </div>
       )}

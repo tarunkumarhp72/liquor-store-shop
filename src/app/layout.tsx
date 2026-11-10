@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AgeGateModal from '@/components/AgeGateModal';
 import MobileBottomBar from '@/components/MobileBottomBar';
+import BackToTop from '@/components/BackToTop';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.mh2liquorstore.ca'),
@@ -185,6 +186,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <BackToTop />
         <MobileBottomBar />
       </body>
     </html>

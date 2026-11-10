@@ -9,7 +9,7 @@ import BrandLogo from '@/components/BrandLogo';
 import { query } from '@/lib/db';
 import { Product } from '@/components/ProductCard';
 
-export const revalidate = 60; // ISR cache revalidation every minute
+export const revalidate = 300; // 5-minute ISR cache for high-speed edge delivery
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
@@ -18,8 +18,8 @@ async function getFeaturedProducts(): Promise<Product[]> {
              is_in_stock, rating, review_count, abv, volume, country, region, image_url
       FROM public.products
       WHERE is_in_stock = true
-      ORDER BY featured DESC, rating DESC
-      LIMIT 24;
+      ORDER BY is_in_stock DESC, featured DESC, rating DESC, name ASC
+      LIMIT 48;
     `);
     return products;
   } catch (err) {
@@ -53,7 +53,7 @@ export default async function HomePage() {
   const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
 
   return (
-    <div className="space-y-6 sm:space-y-12 pb-16">
+    <div className="space-y-6 sm:space-y-10">
       {/* Primary Semantic Store Heading for Google Crawlers */}
       <h1 className="sr-only">
         MH2 Liquor Store | Wine, Spirits & Cold Craft Beer Bottle Shop in Calgary NW (3106 4th St NW)
@@ -192,8 +192,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 6. Holiday Banner */}
-      <section className="bg-wine-700 text-white py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+      {/* 6. Holiday Banner - Cleanly positioned above footer without gap */}
+      <section className="bg-wine-700 text-white py-8 sm:py-10 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 -mb-6 sm:-mb-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div className="space-y-1.5">
             <h2 className="disp text-2xl sm:text-4xl font-bold">Open Through All Major Holidays</h2>

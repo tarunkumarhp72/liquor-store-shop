@@ -7,7 +7,7 @@ export default function Footer() {
   const googleMapUrl = process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
 
   return (
-    <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-20">
+    <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-0">
       {/* Legal & Age Compliance Notice Bar */}
       <div className="bg-[#1A1616] border-b border-white/10 py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 text-xs text-[#B8ADA1] leading-relaxed">
