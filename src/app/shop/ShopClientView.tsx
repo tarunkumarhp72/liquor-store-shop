@@ -681,18 +681,17 @@ export default function ShopClientView({
                     <ProductCard product={p} />
                   </div>
                 ))}
-              </div>
-            )}
 
-            {/* Smooth Non-Flickering Loader when fetching next page */}
-            {isLoadingMore && (
-              <div className="w-full py-8 flex flex-col items-center justify-center gap-2.5 animate-in fade-in duration-200">
-                <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 border border-cellar-border shadow-xs">
-                  <span className="w-4 h-4 border-2 border-wine-700 border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span className="text-xs font-semibold text-cellar-charcoal tracking-wide">
-                    Loading cellar bottles...
-                  </span>
-                </div>
+                {/* Luxury Shimmering Product Card Skeletons during Infinite Scroll */}
+                {isLoadingMore && (
+                  <>
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                  </>
+                )}
               </div>
             )}
 
