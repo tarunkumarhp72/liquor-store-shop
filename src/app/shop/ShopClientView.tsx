@@ -160,9 +160,9 @@ export default function ShopClientView({
     });
   };
 
-  // Cursor / Infinite Scroll Loading Logic (Flicker-Free & Loop-Protected)
+  // Cursor / Infinite Scroll Loading Logic (Flicker-Free, Never Stalls, Never Loops)
   const loadMoreProducts = useCallback(async () => {
-    // Guard against race conditions and redundant fetches
+    // Synchronous guard against redundant in-flight fetches
     if (isFetchingRef.current || !hasMoreRef.current) return;
 
     isFetchingRef.current = true;
@@ -180,35 +180,32 @@ export default function ShopClientView({
       const data = await response.json();
       const newItems: Product[] = data.products || [];
 
-      if (newItems.length === 0) {
+      if (newItems.length === 0 || !data.hasMore) {
         setHasMore(false);
         hasMoreRef.current = false;
-      } else {
-        let reachedEnd = false;
+      }
+
+      if (newItems.length > 0) {
         setProducts((prev) => {
           const seen = new Set(prev.map((p) => p.id));
           const uniqueNew = newItems.filter((p) => !seen.has(p.id));
 
-          // If all returned items were already in list, we reached the end
           if (uniqueNew.length === 0) {
-            reachedEnd = true;
+            setHasMore(false);
+            hasMoreRef.current = false;
             return prev;
           }
 
           const combined = [...prev, ...uniqueNew];
-          if (combined.length >= (data.totalCount || totalFilteredCount) || !data.hasMore) {
-            reachedEnd = true;
+          if (combined.length >= (data.totalCount || totalFilteredCount)) {
+            setHasMore(false);
+            hasMoreRef.current = false;
           }
           return combined;
         });
 
-        if (reachedEnd || !data.hasMore) {
-          setHasMore(false);
-          hasMoreRef.current = false;
-        } else {
-          setPage(nextPage);
-          pageRef.current = nextPage;
-        }
+        setPage(nextPage);
+        pageRef.current = nextPage;
       }
     } catch (err) {
       console.error('Error in cursor scroll pagination:', err);
@@ -217,10 +214,20 @@ export default function ShopClientView({
     } finally {
       setIsLoadingMore(false);
       isFetchingRef.current = false;
+
+      // Ensure that if the viewport is still scrolled to the bottom, next page triggers without getting stuck
+      setTimeout(() => {
+        if (hasMoreRef.current && sentinelRef.current && !isFetchingRef.current) {
+          const rect = sentinelRef.current.getBoundingClientRect();
+          if (rect.top <= window.innerHeight + 400) {
+            loadMoreProducts();
+          }
+        }
+      }, 150);
     }
   }, [searchParams, totalFilteredCount]);
 
-  // IntersectionObserver to auto-trigger ahead of time (Flicker-Free)
+  // IntersectionObserver with threshold 0 and 400px runway for continuous stream
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasMore) return;
@@ -232,8 +239,8 @@ export default function ShopClientView({
         }
       },
       {
-        rootMargin: '250px 0px', // Fetch smoothly before bottom without oscillation
-        threshold: 0.1,
+        rootMargin: '400px 0px', // Fetch with 400px lead-in
+        threshold: 0,
       }
     );
 
