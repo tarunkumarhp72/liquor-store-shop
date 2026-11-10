@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Star, ArrowRight, Wine, Sparkles } from 'lucide-react';
+import { BottleSkeleton } from './ProductCardSkeleton';
 
 export interface Product {
   id: string;
@@ -117,10 +118,8 @@ export default function ProductCard({ product }: { product: Product }) {
           <LuxuryBottlePlaceholder categorySlug={product.category_slug} />
         ) : (
           <div className="relative w-full h-full flex items-center justify-center">
-            {/* Shimmer effect while loading image */}
-            {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center animate-shimmer opacity-40 rounded-sm" />
-            )}
+            {/* Bottle skeleton with shimmer while image loads */}
+            {!imageLoaded && <BottleSkeleton />}
             <Image
               src={product.image_url}
               alt={product.name}
@@ -128,7 +127,7 @@ export default function ProductCard({ product }: { product: Product }) {
               height={200}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               quality={85}
-              className={`bottle-img max-h-36 sm:max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-all duration-300 ${
+              className={`bottle-img max-h-36 sm:max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-all duration-300 relative z-10 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               loading="lazy"

@@ -2,28 +2,37 @@
 
 import React from 'react';
 
+export function BottleSkeleton({ className = '' }: { className?: string }) {
+  return (
+    <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${className}`}>
+      {/* Luxury Shimmer Background */}
+      <div className="absolute inset-0 animate-shimmer opacity-70" />
+
+      {/* Elegant Bottle Silhouette Outline */}
+      <div className="relative z-10 opacity-35 flex flex-col items-center animate-pulse-subtle">
+        {/* Cork / Cap */}
+        <div className="w-2.5 h-3.5 bg-gold-700/60 rounded-t-xs" />
+        {/* Neck */}
+        <div className="w-3.5 h-8 bg-gold-700/50" />
+        {/* Shoulder */}
+        <div className="w-10 h-6 bg-gold-700/40 rounded-t-2xl" />
+        {/* Body */}
+        <div className="w-10 h-24 sm:h-28 bg-gold-700/35 rounded-b-xs" />
+      </div>
+    </div>
+  );
+}
+
 export default function ProductCardSkeleton() {
   return (
     <div className="flex flex-col bg-white border border-cellar-border/60 rounded-sm overflow-hidden h-full shadow-2xs">
       {/* Top Image Showcase Skeleton */}
       <div className="relative h-44 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-[#F8F5EF] overflow-hidden">
-        {/* Shimmer background */}
-        <div className="absolute inset-0 animate-shimmer" />
+        {/* Same Bottle Skeleton with Shimmer */}
+        <BottleSkeleton />
 
         {/* Rating Pill Skeleton */}
-        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-12 h-5 rounded-full bg-white/70 backdrop-blur-xs border border-cellar-border/40" />
-
-        {/* Elegant Bottle Silhouette Outline */}
-        <div className="relative z-10 opacity-30 flex flex-col items-center">
-          {/* Cork / Cap */}
-          <div className="w-2.5 h-3 bg-gold-700/50 rounded-t-xs" />
-          {/* Neck */}
-          <div className="w-3.5 h-8 bg-gold-700/40" />
-          {/* Shoulder */}
-          <div className="w-10 h-6 bg-gold-700/35 rounded-t-2xl" />
-          {/* Body */}
-          <div className="w-10 h-24 sm:h-28 bg-gold-700/30 rounded-b-xs" />
-        </div>
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-12 h-5 rounded-full bg-white/70 backdrop-blur-xs border border-cellar-border/40 z-20" />
       </div>
 
       {/* Product Details Skeleton */}
