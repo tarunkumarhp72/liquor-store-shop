@@ -73,8 +73,8 @@ const reviewsData: Review[] = [
 export default function CustomerReviews() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const googleMapsUrl = process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
-  const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || 'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig';
+  const googleMapsUrl = process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || '#';
+  const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || '#';
 
   return (
     <div className="bg-[#FAF7F2] border-y border-cellar-border py-12 sm:py-16">

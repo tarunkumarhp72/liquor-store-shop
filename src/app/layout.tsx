@@ -150,11 +150,13 @@ const storeSchema = {
       closes: '02:00',
     },
   ],
-  hasMap: 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw',
+  ...(process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL
+    ? { hasMap: process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL }
+    : {}),
   sameAs: [
-    'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw',
-    'https://www.ubereats.com/ca/store/mh2-liquor-store/FurwEWDqXG2txmJ3L1Kcig',
-  ],
+    process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL,
+    process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL,
+  ].filter(Boolean) as string[],
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.6',

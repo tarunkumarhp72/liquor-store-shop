@@ -4,7 +4,7 @@ import { Wine, MapPin, Phone, Clock, ShieldCheck, ExternalLink } from 'lucide-re
 import BrandLogo from '@/components/BrandLogo';
 
 export default function Footer() {
-  const googleMapUrl = process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
+  const googleMapUrl = process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || '#';
 
   return (
     <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-0">

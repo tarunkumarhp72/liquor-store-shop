@@ -21,7 +21,7 @@ export default function ContactPage() {
   const googleMapUrl =
     process.env.NEXT_PROD_GOOGLE_MAPS_URL ||
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL ||
-    'https://maps.app.goo.gl/3STi9P9FtXK4aUL28?g_st=aw';
+    '#';
 
   return <ContactClient googleMapUrl={googleMapUrl} />;
 }
