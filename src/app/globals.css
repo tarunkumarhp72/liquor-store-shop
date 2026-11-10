@@ -100,3 +100,39 @@ body {
 .bottle-img {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Luxury Champagne Shimmer Animation for Skeletons */
+@keyframes luxuryShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(244, 239, 230, 0.7) 0%,
+    rgba(235, 226, 210, 0.95) 25%,
+    rgba(212, 175, 55, 0.15) 50%,
+    rgba(235, 226, 210, 0.95) 75%,
+    rgba(244, 239, 230, 0.7) 100%
+  );
+  background-size: 200% 100%;
+  animation: luxuryShimmer 2.2s infinite ease-in-out;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

@@ -46,6 +46,8 @@ const nextConfig = {
     NEXT_PROD_UBER_EATS_URL: process.env.NEXT_PROD_UBER_EATS_URL,
   },
   images: {
+    minimumCacheTTL: 2592000, // 30 days image cache
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -60,11 +62,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'oaszetyzonehuvsrnquu.supabase.co',
-        pathname: '/storage/v1/object/public/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'oaszetyzonehuvsrnquu.storage.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.uber.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudfront.net',
         pathname: '/**',
       },
     ],

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { 
   Search, 
   SlidersHorizontal, 
   X, 
-  ChevronDown, 
   RotateCcw, 
   Phone, 
   Wine, 
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import CallStoreModal from '@/components/CallStoreModal';
 import ProductCard, { Product } from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 
 export interface CategoryWithCount {
   id: string;
@@ -56,6 +57,7 @@ export default function ShopClientView({
 }: ShopClientViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isFilterPending, startTransition] = useTransition();
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [callModalOpen, setCallModalOpen] = useState(false);
@@ -121,7 +123,9 @@ export default function ShopClientView({
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
 
-    router.push(`/shop?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`/shop?${params.toString()}`, { scroll: false });
+    });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -133,12 +137,14 @@ export default function ShopClientView({
     if (typeof window !== 'undefined' && window.scrollY > 350) {
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
-    router.push('/shop', { scroll: false });
     setSearchInput('');
     setMobileDrawerOpen(false);
+    startTransition(() => {
+      router.push('/shop', { scroll: false });
+    });
   };
 
-  // Cursor / Infinite Scroll Loading Logic
+  // Cursor / Infinite Scroll Loading Logic (Flicker-Free)
   const loadMoreProducts = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
 
@@ -174,7 +180,7 @@ export default function ShopClientView({
     }
   }, [isLoadingMore, hasMore, page, searchParams]);
 
-  // IntersectionObserver to auto-trigger when approaching bottom
+  // IntersectionObserver to auto-trigger ahead of time (Flicker-Free)
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasMore) return;
@@ -186,7 +192,7 @@ export default function ShopClientView({
         }
       },
       {
-        rootMargin: '400px 0px', // Fetch ahead before user hits the bottom
+        rootMargin: '500px 0px', // Fetch well before bottom to eliminate waiting and flicker
         threshold: 0.05,
       }
     );
@@ -586,10 +592,10 @@ export default function ShopClientView({
                 {currentSearch && <span> matching &ldquo;{currentSearch}&rdquo;</span>}
               </div>
               <div className="flex items-center gap-2">
-                {isLoadingMore ? (
+                {isLoadingMore || isFilterPending ? (
                   <span className="inline-flex items-center gap-1.5 text-wine-700 font-semibold text-xs animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-wine-700 animate-ping" />
-                    Loading more bottles...
+                    Loading cellar bottles...
                   </span>
                 ) : hasMore ? (
                   <span className="text-[11px] text-cellar-muted">
@@ -603,8 +609,15 @@ export default function ShopClientView({
               </div>
             </div>
 
-            {/* Product Cards Grid Area */}
-            {products.length === 0 && !isLoadingMore ? (
+            {/* Product Cards Grid Area with Flicker-Free Skeleton Loading */}
+            {isFilterPending ? (
+              /* Shimmering Skeletons when transitioning filters */
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <ProductCardSkeleton key={`filter-skel-${i}`} />
+                ))}
+              </div>
+            ) : products.length === 0 && !isLoadingMore ? (
               <div className="bg-white border border-cellar-border p-8 sm:p-12 text-center rounded-lg space-y-3">
                 <p className="disp text-2xl font-bold text-cellar-charcoal">No bottles found</p>
                 <p className="text-xs text-cellar-muted max-w-sm mx-auto">
@@ -624,38 +637,48 @@ export default function ShopClientView({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5">
                 {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    className="h-full"
+                  >
+                    <ProductCard product={p} />
+                  </motion.div>
                 ))}
+
+                {/* In-Grid Skeletons during Infinite Scroll - Eliminates Jumps & Flicker */}
+                {isLoadingMore && (
+                  <>
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                  </>
+                )}
               </div>
             )}
 
-            {/* Infinite Scroll Sentinel & Bottom Loading / End Status */}
-            <div ref={sentinelRef} className="w-full py-6 flex flex-col items-center justify-center min-h-[80px]">
-              {isLoadingMore && (
-                <div className="flex flex-col items-center gap-2 py-4">
-                  <div className="w-8 h-8 border-3 border-wine-700/20 border-t-wine-700 rounded-full animate-spin" />
-                  <p className="text-xs font-semibold text-cellar-muted tracking-wide">
-                    Loading more bottles from the cellar...
-                  </p>
-                </div>
-              )}
+            {/* Invisible Infinite Scroll Sentinel Trigger */}
+            <div ref={sentinelRef} className="w-full h-8 -mt-20 pointer-events-none" />
 
-              {!hasMore && products.length > 0 && (
-                <div className="w-full border-t border-cellar-border/60 mt-6 pt-6 text-center space-y-2">
-                  <p className="text-xs font-semibold text-cellar-muted">
-                    Showing all {totalFilteredCount} bottles &bull; You&apos;ve reached the end
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-wine-700 hover:text-wine-900 transition py-1 px-3 rounded-md bg-wine-50 border border-wine-200 hover:bg-wine-100"
-                  >
-                    <ArrowUp className="w-3 h-3" />
-                    <span>Back to Top</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* End of Collection Status */}
+            {!hasMore && products.length > 0 && (
+              <div className="w-full border-t border-cellar-border/60 mt-8 pt-6 text-center space-y-2">
+                <p className="text-xs font-semibold text-cellar-muted">
+                  Showing all {totalFilteredCount} bottles &bull; You&apos;ve reached the end
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-wine-700 hover:text-wine-900 transition py-1.5 px-3.5 rounded-md bg-wine-50 border border-wine-200 hover:bg-wine-100 shadow-2xs"
+                >
+                  <ArrowUp className="w-3 h-3" />
+                  <span>Back to Top</span>
+                </button>
+              </div>
+            )}
           </main>
         </div>
       </div>

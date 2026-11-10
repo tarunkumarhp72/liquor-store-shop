@@ -106,14 +106,14 @@ export async function getProductsData(params: ShopSearchParams): Promise<{
     const totalCount = Number(countRows[0]?.count) || 0;
     const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
-    // Order By
-    let orderClause = 'ORDER BY featured DESC, rating DESC, name ASC';
+    // Order By: Always prioritize in-stock products first so out-of-stock bottles never appear at top of catalog
+    let orderClause = 'ORDER BY is_in_stock DESC, featured DESC, rating DESC, name ASC';
     if (params.sort === 'price_asc') {
-      orderClause = 'ORDER BY price ASC';
+      orderClause = 'ORDER BY is_in_stock DESC, price ASC, rating DESC';
     } else if (params.sort === 'price_desc') {
-      orderClause = 'ORDER BY price DESC';
+      orderClause = 'ORDER BY is_in_stock DESC, price DESC, rating DESC';
     } else if (params.sort === 'rating') {
-      orderClause = 'ORDER BY rating DESC';
+      orderClause = 'ORDER BY is_in_stock DESC, rating DESC, featured DESC';
     }
 
     // Paginated Data
@@ -148,3 +148,4 @@ export async function getProductsData(params: ShopSearchParams): Promise<{
     };
   }
 }
+
