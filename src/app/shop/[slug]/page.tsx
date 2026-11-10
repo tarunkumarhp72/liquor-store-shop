@@ -6,6 +6,7 @@ import { Star, ShieldCheck, Truck, Clock, ArrowLeft, Check, AlertCircle, Externa
 import { query } from '@/lib/db';
 import ProductCard, { Product } from '@/components/ProductCard';
 import ProductOrderCTAs from './ProductOrderCTAs';
+import ProductDetailImage from './ProductDetailImage';
 
 interface ProductDetailProps {
   params: Promise<{
@@ -221,7 +222,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
@@ -251,17 +252,13 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
       {/* Main Product Showcase Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 bg-white border border-cellar-border p-4 sm:p-8 lg:p-10 rounded-sm shadow-xs mb-12">
-        {/* Left Column: Bottle Presentation */}
-        <div className={`lg:col-span-5 ${toneClass} rounded-sm p-6 sm:p-8 flex items-center justify-center min-h-[300px] sm:min-h-[420px] relative overflow-hidden border border-black/5`}>
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            width={340}
-            height={440}
-            className="max-h-[280px] sm:max-h-[390px] w-auto object-contain drop-shadow-xl"
-            priority
-          />
-        </div>
+        {/* Left Column: Bottle Presentation with Skeleton & Smooth Image Loading */}
+        <ProductDetailImage
+          imageUrl={product.image_url}
+          productName={product.name}
+          toneClass={toneClass}
+          categorySlug={product.category_slug}
+        />
 
         {/* Right Column: Specs & Purchasing CTAs */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">

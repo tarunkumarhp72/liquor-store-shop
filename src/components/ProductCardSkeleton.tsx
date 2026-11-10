@@ -2,14 +2,25 @@
 
 import React from 'react';
 
-export function BottleSkeleton({ className = '' }: { className?: string }) {
+export function BottleSkeleton({
+  className = '',
+  size = 'default',
+}: {
+  className?: string;
+  size?: 'default' | 'large';
+}) {
+  const isLarge = size === 'large';
   return (
     <div className={`absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none ${className}`}>
       {/* Luxury Shimmer Background */}
       <div className="absolute inset-0 animate-shimmer opacity-70" />
 
       {/* Elegant Bottle Silhouette Outline */}
-      <div className="relative z-10 opacity-35 flex flex-col items-center animate-pulse-subtle">
+      <div
+        className={`relative z-10 opacity-35 flex flex-col items-center animate-pulse-subtle transition-transform ${
+          isLarge ? 'scale-150 sm:scale-[1.9]' : ''
+        }`}
+      >
         {/* Cork / Cap */}
         <div className="w-2.5 h-3.5 bg-gold-700/60 rounded-t-xs" />
         {/* Neck */}
