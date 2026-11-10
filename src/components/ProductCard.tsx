@@ -100,15 +100,17 @@ export default function ProductCard({ product }: { product: Product }) {
         href={`/shop/${product.slug}`}
         className={`relative h-44 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 ${toneClass} overflow-hidden cursor-pointer`}
       >
-        {/* Rating pill */}
-        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold text-cellar-charcoal flex items-center gap-1 shadow-xs z-10 border border-black/5">
-          <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-gold-500 text-gold-500" />
-          <span>{product.rating}</span>
+        {/* Rating pill - z-30 ensures it stays above image background at any zoom */}
+        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold text-cellar-charcoal flex items-center gap-1 shadow-xs z-30 border border-black/5 whitespace-nowrap shrink-0 pointer-events-none">
+          <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-gold-500 text-gold-500 shrink-0" />
+          <span className="shrink-0 leading-none">
+            {typeof product.rating === 'number' ? product.rating.toFixed(2) : parseFloat(String(product.rating || 5)).toFixed(2)}
+          </span>
         </div>
 
         {/* Stock badge */}
         {!product.is_in_stock && (
-          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-red-800 text-white px-2 py-0.5 rounded-sm text-[9px] sm:text-[10px] font-bold uppercase tracking-wider z-10 shadow-xs">
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-red-800 text-white px-2 py-0.5 rounded-sm text-[9px] sm:text-[10px] font-bold uppercase tracking-wider z-30 shadow-xs whitespace-nowrap pointer-events-none">
             Out of Stock
           </div>
         )}
@@ -127,7 +129,7 @@ export default function ProductCard({ product }: { product: Product }) {
               height={200}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               quality={85}
-              className={`bottle-img max-h-36 sm:max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-all duration-300 relative z-10 ${
+              className={`bottle-img max-h-36 sm:max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-all duration-300 relative z-0 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               loading="lazy"

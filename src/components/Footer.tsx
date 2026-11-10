@@ -9,8 +9,8 @@ export default function Footer() {
   return (
     <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-0">
       {/* Legal & Age Compliance Notice Bar */}
-      <div className="bg-[#1A1616] border-b border-white/10 py-6 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 text-xs text-[#B8ADA1] leading-relaxed">
+      <div className="bg-[#1A1616] border-b border-white/10 py-6 px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div className="max-w-[1680px] w-full mx-auto flex flex-col md:flex-row items-center gap-4 text-xs text-[#B8ADA1] leading-relaxed">
           <div className="flex-shrink-0 flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-[11px] border border-gold-600/30 px-3 py-1.5 rounded-sm">
             <ShieldCheck className="w-4 h-4 text-gold-400" />
             18+ Compliance Notice
@@ -21,7 +21,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Col 1: Brand Info */}
           <div>

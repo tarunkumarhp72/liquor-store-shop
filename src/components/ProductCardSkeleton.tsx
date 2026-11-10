@@ -4,7 +4,7 @@ import React from 'react';
 
 export function BottleSkeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${className}`}>
+    <div className={`absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none ${className}`}>
       {/* Luxury Shimmer Background */}
       <div className="absolute inset-0 animate-shimmer opacity-70" />
 
@@ -28,7 +28,7 @@ export default function ProductCardSkeleton() {
     <div className="flex flex-col bg-white border border-cellar-border/60 rounded-sm overflow-hidden h-full shadow-2xs">
       {/* Top Image Showcase Skeleton */}
       <div className="relative h-44 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-[#F8F5EF] overflow-hidden">
-        {/* Same Bottle Skeleton with Shimmer */}
+        {/* Bottle Skeleton with Shimmer */}
         <BottleSkeleton />
 
         {/* Rating Pill Skeleton */}

@@ -403,7 +403,7 @@ export default function ShopClientView({
       <CallStoreModal isOpen={callModalOpen} onClose={() => setCallModalOpen(false)} />
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-8">
         {/* Top Header / Breadcrumbs */}
         <div className="mb-4 sm:mb-6">
           <div className="text-[11px] font-bold tracking-widest uppercase text-gold-700 mb-1 flex items-center gap-2">
@@ -612,8 +612,8 @@ export default function ShopClientView({
             {/* Product Cards Grid Area with Flicker-Free Skeleton Loading */}
             {isFilterPending ? (
               /* Shimmering Skeletons when transitioning filters */
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5">
-                {Array.from({ length: 8 }).map((_, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3 sm:gap-5">
+                {Array.from({ length: 10 }).map((_, i) => (
                   <ProductCardSkeleton key={`filter-skel-${i}`} />
                 ))}
               </div>
@@ -635,7 +635,7 @@ export default function ShopClientView({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-3 sm:gap-5">
                 {products.map((p) => (
                   <motion.div
                     key={p.id}
@@ -651,6 +651,7 @@ export default function ShopClientView({
                 {/* In-Grid Skeletons during Infinite Scroll - Eliminates Jumps & Flicker */}
                 {isLoadingMore && (
                   <>
+                    <ProductCardSkeleton />
                     <ProductCardSkeleton />
                     <ProductCardSkeleton />
                     <ProductCardSkeleton />
