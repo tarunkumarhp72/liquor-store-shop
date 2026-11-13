@@ -6,7 +6,7 @@ A modern, high-performance web application and digital cellar showcase for **MH2
 
 ## 🌟 Key Features
 
-- **Right Liquor Model:** Frictionless catalog browsing with direct 1-tap **Uber Eats delivery** and **15-minute curbside pickup** (`tel:+14037690061`).
+- **Right Liquor Model:** Frictionless catalog browsing with direct 1-tap **Uber Eats delivery** and **15-minute curbside pickup** (`tel:+111*****`).
 - **GotoLiquorStore Carousel:** Compact, high-impact promotional hero banners with smooth touch swipe and auto-advancing slides.
 - **Auto Right-to-Left Department Carousel:** Continuous horizontal slider displaying curated cellar categories with bottle counts.
 - **Cellar Catalog & Server-Side Pagination:** 16 items per page, dynamic sorting, in-stock toggles, and instant live search.
@@ -48,8 +48,8 @@ Fill in your database URL and secrets in `.env.local`:
 DATABASE_URL=postgresql://postgres.[REF]:[PASSWORD]@[HOST]:5432/postgres
 ADMIN_JWT_SECRET=your_super_secret_jwt_key
 NEXT_PROD_STORE_NAME="MH2 Wine & Liquor Store"
-NEXT_PROD_STORE_PHONE="(403) 769-0061"
-NEXT_PROD_STORE_ADDRESS="3106 A 4 St NW, Calgary, AB T2M 3A4"
+NEXT_PROD_STORE_PHONE="(111) ***-***"
+NEXT_PROD_STORE_ADDRESS="abc street"
 NEXT_PROD_GOOGLE_MAPS_URL=""
 NEXT_PROD_UBER_EATS_URL=""
 ```
