@@ -469,7 +469,7 @@ export default function ShopClientView({
           </h1>
           <p className="text-xs sm:text-sm text-cellar-muted mt-1 max-w-2xl">
             {activeCategoryObj?.description ||
-              'Explore 130+ fine wines, vintage champagnes, rare single malts, and cold craft beers for 15-minute curbside pickup and Uber Eats delivery.'}
+              'Explore fine wines, vintage champagnes, rare single malts, and cold craft beers for 15-minute curbside pickup and Uber Eats delivery.'}
           </p>
         </div>
 

@@ -182,7 +182,7 @@ export default function HomeShopTabs({ categories, products }: HomeShopTabsProps
           href={activeTab === 'all' ? '/shop' : `/shop?category=${activeTab}`}
           className="inline-flex items-center gap-2 px-8 py-3.5 bg-cellar-charcoal hover:bg-wine-700 text-white font-bold text-xs uppercase tracking-widest rounded-sm transition shadow-sm active:scale-98"
         >
-          <span>View All {activeTab === 'all' ? '130+ Bottles' : `${activeTab} Bottles`}</span>
+          <span>View All {activeTab === 'all' ? 'Bottles' : `${activeTab} Bottles`}</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

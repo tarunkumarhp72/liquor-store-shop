@@ -82,7 +82,7 @@ export async function generateMetadata({ searchParams }: ShopProps): Promise<Met
     openGraph: {
       title: 'Shop Wine, Spirits & Craft Beer | MH2 Liquor Store Calgary',
       description:
-        'Browse 130+ bottles of fine wine, bourbon, tequila, and craft beer open late in Calgary NW.',
+        'Browse bottles of fine wine, bourbon, tequila, and craft beer open late in Calgary NW.',
       url: 'https://www.mh2liquorstore.ca/shop',
     },
   };
