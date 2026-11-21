@@ -33,14 +33,15 @@ export interface FallbackCategory {
 }
 
 export const FALLBACK_CATEGORIES: FallbackCategory[] = [
-  { id: 1, name: 'Fine Wines & Rosé', slug: 'wine', sort_order: 1, is_active: true, description: 'Curated selection of reds, whites, and rosés from top wine regions' },
-  { id: 2, name: 'Champagne & Sparkling', slug: 'champagne', sort_order: 2, is_active: true, description: 'Grand Cru cuvées, Prosecco, and sparkling wines' },
-  { id: 3, name: 'Whiskies & Bourbon', slug: 'whiskey', sort_order: 3, is_active: true, description: 'Single malts, bourbon, rye, and rare Japanese whiskies' },
-  { id: 4, name: 'Tequila & Agave Spirits', slug: 'tequila', sort_order: 4, is_active: true, description: 'Artisanal blanco, reposado, añejo, and mezcal' },
-  { id: 5, name: 'Vodka & Spirits', slug: 'vodka', sort_order: 5, is_active: true, description: 'Premium distilled vodkas and craft botanical gins' },
-  { id: 6, name: 'Craft & Domestic Beer', slug: 'beer', sort_order: 6, is_active: true, description: 'Chilled local craft packs, IPAs, lagers, and ciders' },
-  { id: 7, name: 'Gins & Botanicals', slug: 'gins', sort_order: 7, is_active: true, description: 'Artisanal dry gins and botanicals' },
-  { id: 8, name: 'Rums & Cane Spirits', slug: 'rums', sort_order: 8, is_active: true, description: 'Aged Caribbean rums and spiced cane spirits' },
+  { id: 1, name: 'Wine', slug: 'wine', sort_order: 1, is_active: true, description: 'Curated selection of reds, whites, and rosés from top wine regions' },
+  { id: 2, name: 'Champagne & Sparkling', slug: 'champagne', sort_order: 2, is_active: true, description: 'Prestige cuvées, vintage champagnes, and celebratory sparkling wines' },
+  { id: 3, name: 'Whiskey', slug: 'whiskey', sort_order: 3, is_active: true, description: 'Single malts, bourbon, rye, and rare Irish whiskies' },
+  { id: 4, name: 'Tequila & Mezcal', slug: 'tequila', sort_order: 4, is_active: true, description: 'Artisanal blanco, reposado, añejo, and mezcal' },
+  { id: 5, name: 'Vodka', slug: 'vodka', sort_order: 5, is_active: true, description: 'Premium distilled vodkas and craft spirits' },
+  { id: 6, name: 'Gin', slug: 'gins', sort_order: 6, is_active: true, description: 'Botanical dry gins and craft infusions' },
+  { id: 7, name: 'Rum', slug: 'rums', sort_order: 7, is_active: true, description: 'Aged Caribbean rums and spiced cane spirits' },
+  { id: 8, name: 'Beer & Cider', slug: 'beer', sort_order: 8, is_active: true, description: 'Cold domestic classics, imported lagers, and craft beer' },
+  { id: 9, name: 'Non-Alcoholic & Mixers', slug: 'non-alcoholic', sort_order: 9, is_active: true, description: 'Chilled energy drinks, juices, sodas, and cocktail mixers' },
 ];
 
 function parseCSV(text: string): string[][] {
@@ -89,22 +90,23 @@ export function getFallbackProducts(): FallbackProduct[] {
       const name = r[1].trim();
       const cat = (r[2] || 'Wine').trim().toLowerCase();
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const price = (22 + ((i * 7) % 65)) + 0.99;
+      const parsedPrice = r[3] ? parseFloat(r[3].replace(/[^0-9.]/g, '')) : NaN;
+      const price = !isNaN(parsedPrice) && parsedPrice > 0 ? parsedPrice.toFixed(2) : ((22 + ((i * 7) % 65)) + 0.99).toFixed(2);
 
       products.push({
         id: String(r[0] || i).replace(/^\uFEFF/, ''),
         name,
         slug,
         category_slug: cat,
-        price: price.toFixed(2),
-        stock_quantity: 15,
+        price,
+        stock_quantity: 24,
         is_in_stock: true,
-        rating: +(4.4 + ((i % 6) * 0.1)).toFixed(1),
-        review_count: 8 + ((i * 3) % 45),
-        abv: cat === 'beer' ? '5.0%' : cat === 'wine' ? '13.5%' : '40.0%',
-        volume: cat === 'beer' ? '6x355ml' : '750ml',
-        country: cat === 'beer' ? 'Canada' : 'France',
-        region: cat === 'beer' ? 'Alberta' : 'Bordeaux',
+        rating: +(4.8 + ((i % 3) * 0.1)).toFixed(1),
+        review_count: 15 + ((i * 3) % 25),
+        abv: r[8] ? r[8].trim() : (cat === 'beer' ? '5.0%' : cat === 'wine' ? '13.5%' : '40.0%'),
+        volume: r[6] ? r[6].trim() : '750 ml',
+        country: r[9] ? r[9].trim() : 'International',
+        region: '',
         image_url: r[7] ? r[7].trim() : '/placeholder-bottle.svg',
         short_description: r[4] ? r[4].trim() : '',
         description: r[5] ? r[5].trim() : '',
