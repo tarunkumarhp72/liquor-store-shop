@@ -66,7 +66,7 @@ const categoryMetadata: Record<string, { icon: string; tone: string; borderTone:
     borderTone: 'group-hover:border-amber-400',
     accent: 'text-amber-900',
   },
-  'artisanal-seltzers': {
+  'non-alcoholic': {
     icon: '🥤',
     tone: 'from-emerald-50 to-stone-50',
     borderTone: 'group-hover:border-emerald-400',
