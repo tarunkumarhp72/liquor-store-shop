@@ -13,24 +13,7 @@ export const metadata: Metadata = {
     template: '%s | MH2 Liquor Store',
   },
   description:
-    'Boutique liquor store offering curated wines, vintage champagnes, premium spirits, and cold craft beer in NW Calgary (3106 4th St NW). Open daily 10 AM to 2 AM. 15-min curbside pickup & Uber Eats delivery.',
-  keywords: [
-    'MH2 Liquor Store',
-    'MH2 Wine & Spirits',
-    'Liquor MH',
-    'liquor store Calgary',
-    'liquor store NW Calgary',
-    'wine shop Calgary',
-    'liquor store open late Calgary',
-    'liquor open until 2am Calgary',
-    'beer delivery Calgary',
-    'craft beer Calgary',
-    'whiskey shop Calgary',
-    'bourbon Calgary',
-    'tequila Calgary',
-    'cold beer near me',
-    'liquor store 4th street NW Calgary',
-  ],
+    'Wine, spirits and beer at 3106 A 4 St NW in Calgary. Open every day 10 AM to 2 AM. Curbside pickup and Uber Eats delivery.',
   authors: [{ name: 'MH2 Liquor Store' }],
   creator: 'MH2 Liquor Store',
   publisher: 'MH2 Liquor Store',
@@ -49,7 +32,7 @@ export const metadata: Metadata = {
     siteName: 'MH2 Liquor Store',
     title: 'MH2 Liquor Store | Wine, Spirits & Craft Beer | Calgary NW',
     description:
-      'Premier bottle shop on 4th Street NW, Calgary. Open 10 AM to 2 AM every day with 15-minute curbside pickup & Uber Eats delivery.',
+      'Wine, spirits and beer on 4th Street NW, Calgary. Open 10 AM to 2 AM every day. Curbside pickup and Uber Eats delivery.',
     images: [
       {
         url: '/logo.png',
@@ -63,7 +46,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MH2 Liquor Store | Wine, Spirits & Craft Beer Calgary',
     description:
-      'Open daily 10 AM to 2 AM in NW Calgary. Curated wines, cold craft beers, and premium spirits.',
+      'Open daily 10 AM to 2 AM in NW Calgary. Wine, beer and spirits.',
     images: ['/logo.png'],
   },
   robots: {
@@ -93,8 +76,6 @@ export const metadata: Metadata = {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
   other: {
-    'css-version': '1.0.4',
-    'build-version': '1.0.4',
   },
 };
 
@@ -111,12 +92,12 @@ const storeSchema = {
   '@type': ['LiquorStore', 'LocalBusiness', 'Store'],
   '@id': 'https://www.mh2liquorstore.ca/#store',
   name: 'MH2 Liquor Store',
-  alternateName: ['MH2 Wine & Spirits', 'Liquor MH', 'MH2 Liquor Store Calgary'],
+  alternateName: ['Liquor MH'],
   url: 'https://www.mh2liquorstore.ca',
   logo: 'https://www.mh2liquorstore.ca/logo.png',
   image: 'https://www.mh2liquorstore.ca/logo.png',
   description:
-    'Boutique bottle shop and wine cellar in NW Calgary offering fine wine allocations, imported whiskeys, agave spirits, chilled craft beer, and delivery open late 7 days a week until 2 AM.',
+    'Liquor store in NW Calgary selling wine, spirits and beer. Open 7 days a week until 2 AM, with curbside pickup and Uber Eats delivery.',
   telephone: '+14037690061',
   priceRange: '$$',
   currenciesAccepted: 'CAD',
@@ -157,12 +138,6 @@ const storeSchema = {
     process.env.NEXT_PROD_GOOGLE_MAPS_URL || process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL,
     process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL,
   ].filter(Boolean) as string[],
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.6',
-    reviewCount: '130',
-    bestRating: '5',
-  },
 };
 
 export default function RootLayout({

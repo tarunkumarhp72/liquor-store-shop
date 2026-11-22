@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Wine, MapPin, Phone, Clock, ShieldCheck, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function Footer() {
@@ -8,17 +8,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-cellar-charcoal text-[#D9D2C6] border-t border-white/10 mt-0">
-      {/* Legal & Age Compliance Notice Bar */}
-      <div className="bg-[#1A1616] border-b border-white/10 py-6 px-4 sm:px-6 lg:px-8 xl:px-10">
-        <div className="max-w-[1680px] w-full mx-auto flex flex-col md:flex-row items-center gap-4 text-xs text-[#B8ADA1] leading-relaxed">
-          <div className="flex-shrink-0 flex items-center gap-2 text-gold-400 font-bold uppercase tracking-wider text-[11px] border border-gold-600/30 px-3 py-1.5 rounded-sm">
-            <ShieldCheck className="w-4 h-4 text-gold-400" />
-            18+ Compliance Notice
-          </div>
-          <p className="flex-1 text-center md:text-left">
-            <strong>GOVERNMENT WARNING:</strong> (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems. Valid government photo ID verifying age (18+) is required at delivery and in-store pickup.
-          </p>
-        </div>
+      {/* Age notice */}
+      <div className="bg-[#1A1616] border-b border-white/10 py-4 px-4 sm:px-6 lg:px-8 xl:px-10">
+        <p className="max-w-[1680px] w-full mx-auto text-xs text-[#B8ADA1] leading-relaxed">
+          You must be 18 or older to buy alcohol in Alberta. We check government photo ID for in-store purchases, pickup and delivery. Please drink responsibly.
+        </p>
       </div>
 
       <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-14">
@@ -30,11 +24,8 @@ export default function Footer() {
               <span className="disp text-2xl text-white font-bold">MH2 Liquor Store</span>
             </div>
             <p className="text-sm text-[#A89E92] leading-relaxed mb-4">
-              The premier neighbourhood bottle shop and wine cellar. Curated allocations, imported spirits, craft brews, and everyday essentials open late 7 days a week.
+              Wine, spirits and beer on 4th Street NW in Calgary. Open every day until 2 AM.
             </p>
-            <div className="text-xs text-gold-400/90 font-medium">
-              Rated 4.6 on Uber Eats (130+ Customer Reviews)
-            </div>
           </div>
 
           {/* Col 2: Categories */}
@@ -55,7 +46,7 @@ export default function Footer() {
           {/* Col 3: Hours & Operations */}
           <div>
             <h4 className="disp text-lg text-white font-semibold mb-4 tracking-wide border-b border-white/10 pb-2">
-              Hours of Operation
+              Hours
             </h4>
             <div className="space-y-3 text-sm text-[#CFC7B8]">
               <div className="flex items-start gap-2.5">
@@ -66,7 +57,7 @@ export default function Footer() {
                 </div>
               </div>
               <div className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 p-2.5 rounded-sm">
-                Open regular hours (10 AM – 2 AM) on Christmas Eve, Christmas Day, and New Year's Eve.
+                Regular hours on Christmas Eve, Christmas Day, New Year's Eve and New Year's Day.
               </div>
             </div>
           </div>
@@ -109,13 +100,13 @@ export default function Footer() {
         {/* Bottom copyright */}
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8E8478]">
           <div>
-            &copy; {new Date().getFullYear()} MH2 Wine & Spirits. All rights reserved.
+            &copy; {new Date().getFullYear()} MH2 Liquor Store. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
             <Link href="/about" className="hover:text-white transition">About Store</Link>
             <Link href="/delivery" className="hover:text-white transition">Delivery Policy</Link>
             <Link href="/contact" className="hover:text-white transition">Contact</Link>
-            <Link href="/admin/login" className="hover:text-gold-400 transition text-[11px] font-mono">Staff Portal</Link>
+            <Link href="/admin/login" className="hover:text-gold-400 transition text-[11px]">Staff login</Link>
           </div>
         </div>
       </div>

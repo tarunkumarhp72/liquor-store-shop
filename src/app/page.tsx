@@ -1,15 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
-import { Clock, Truck, Car, Star, ArrowRight, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
-import HeroSlider from '@/components/HeroSlider';
-import HomeShopTabs from '@/components/HomeShopTabs';
-import CategoryCarousel from '@/components/CategoryCarousel';
+import { ArrowRight, MapPin, Phone } from 'lucide-react';
+import ProductCard, { Product } from '@/components/ProductCard';
+import CategoryGrid, { CategoryItem } from '@/components/CategoryGrid';
 import CustomerReviews from '@/components/CustomerReviews';
-import BrandLogo from '@/components/BrandLogo';
+import OpenStatus from '@/components/OpenStatus';
 import { query } from '@/lib/db';
-import { Product } from '@/components/ProductCard';
+import { STORE } from '@/lib/store';
 
-export const revalidate = 300; // 5-minute ISR cache for high-speed edge delivery
+export const revalidate = 300;
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
@@ -18,19 +17,19 @@ async function getFeaturedProducts(): Promise<Product[]> {
              is_in_stock, rating, review_count, abv, volume, country, region, image_url
       FROM public.products
       WHERE is_in_stock = true
-      ORDER BY is_in_stock DESC, featured DESC, rating DESC, name ASC
-      LIMIT 48;
+      ORDER BY featured DESC, name ASC
+      LIMIT 8;
     `);
-    return products;
+    return products.slice(0, 8);
   } catch (err) {
     console.error('Failed to load featured products:', err);
     return [];
   }
 }
 
-async function getCategories() {
+async function getCategories(): Promise<CategoryItem[]> {
   try {
-    return await query(`
+    return await query<CategoryItem>(`
       SELECT c.*, COUNT(p.id) as product_count
       FROM public.categories c
       LEFT JOIN public.products p ON c.slug = p.category_slug
@@ -45,172 +44,154 @@ async function getCategories() {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, categories] = await Promise.all([
-    getFeaturedProducts(),
-    getCategories(),
-  ]);
-
-  const uberEatsUrl = process.env.NEXT_PROD_UBER_EATS_URL || process.env.NEXT_PUBLIC_UBER_EATS_URL || '#';
+  const [featuredProducts, categories] = await Promise.all([getFeaturedProducts(), getCategories()]);
 
   return (
-    <div className="space-y-6 sm:space-y-10">
-      {/* Primary Semantic Store Heading for Google Crawlers */}
-      <h1 className="sr-only">
-        MH2 Liquor Store | Wine, Spirits & Cold Craft Beer Bottle Shop in Calgary NW (3106 4th St NW)
-      </h1>
-
-      {/* 1. Hero Carousel - GotoLiquorStore-style neat, clean promotional banner */}
-      <HeroSlider />
-
-      {/* 2. Highlights Strip - 2x2 on Mobile, 4 columns on Desktop (Unclipped & Crisp) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-cellar-border rounded-sm shadow-xs overflow-hidden">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-cellar-border/60">
-            <div className="p-2.5 sm:p-5 flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-wine-50 text-wine-700 flex items-center justify-center shrink-0">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-[11px] sm:text-sm text-cellar-charcoal leading-tight">Open 10 AM – 2 AM</h3>
-                <p className="text-[10px] sm:text-xs text-cellar-muted leading-tight mt-0.5">Daily late nights</p>
-              </div>
+    <div className="space-y-12 pb-14 sm:space-y-16 sm:pb-20">
+      {/* Hero: who we are, where we are, are we open */}
+      <section className="bg-cellar-charcoal text-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-14 lg:px-8 lg:py-16">
+          <div>
+            <h1 className="disp text-4xl font-bold leading-[1.1] sm:text-5xl lg:text-6xl">
+              Wine, beer and spirits on 4th Street NW.
+            </h1>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-[#D4CCC0] sm:text-lg">
+              Calgary&apos;s neighbourhood liquor store, open until 2 AM every night. Park out front, or get it delivered.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/shop"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-sm bg-gold-500 px-6 text-sm font-bold text-cellar-charcoal transition hover:bg-gold-400"
+              >
+                Browse the shop <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <a
+                href={STORE.uberEatsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[48px] items-center rounded-sm border border-white/30 px-6 text-sm font-bold text-white transition hover:bg-white/10"
+              >
+                Order on Uber Eats
+              </a>
             </div>
+          </div>
 
-            <div className="p-2.5 sm:p-5 flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-wine-50 text-wine-700 flex items-center justify-center shrink-0">
-                <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-[11px] sm:text-sm text-cellar-charcoal leading-tight">Uber Eats & Pickup</h3>
-                <p className="text-[10px] sm:text-xs text-cellar-muted leading-tight mt-0.5">15-min curbside</p>
-              </div>
+          {/* Visit card */}
+          <div className="rounded-sm bg-cellar-cream p-5 text-cellar-charcoal sm:p-6">
+            <div className="text-sm">
+              <OpenStatus />
             </div>
-
-            <div className="p-2.5 sm:p-5 flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-wine-50 text-wine-700 flex items-center justify-center shrink-0">
-                <Car className="w-4 h-4 sm:w-5 sm:h-5" />
+            <dl className="mt-4 space-y-4 text-sm">
+              <div className="flex gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-wine-700" aria-hidden="true" />
+                <div>
+                  <dt className="sr-only">Address</dt>
+                  <dd>
+                    {STORE.street}
+                    <br />
+                    {STORE.cityLine}
+                    <br />
+                    <span className="text-cellar-muted">{STORE.landmark}</span>
+                  </dd>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-[11px] sm:text-sm text-cellar-charcoal leading-tight">Free Store Parking</h3>
-                <p className="text-[10px] sm:text-xs text-cellar-muted leading-tight mt-0.5">Right in front on 4th</p>
+              <div className="flex gap-3">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-wine-700" aria-hidden="true" />
+                <div>
+                  <dt className="sr-only">Phone</dt>
+                  <dd>
+                    <a href={STORE.phoneHref} className="font-semibold hover:text-wine-700">
+                      {STORE.phone}
+                    </a>
+                    <br />
+                    <span className="text-cellar-muted">Call ahead and we&apos;ll have it ready for pickup.</span>
+                  </dd>
+                </div>
               </div>
-            </div>
-
-            <div className="p-2.5 sm:p-5 flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-wine-50 text-wine-700 flex items-center justify-center shrink-0">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-gold-500 text-gold-500" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-[11px] sm:text-sm text-cellar-charcoal leading-tight">Rated 4.6 on Uber</h3>
-                <p className="text-[10px] sm:text-xs text-cellar-muted leading-tight mt-0.5">130+ reviews</p>
-              </div>
+            </dl>
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-cellar-border pt-4 text-sm">
+              <a
+                href={STORE.directionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-wine-700 hover:text-wine-800"
+              >
+                Get directions
+              </a>
+              <span className="text-xs text-cellar-muted">Open on holidays too</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Interactive Category Tabs & Products Showcase (Right Liquor Model) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <div className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-gold-700 mb-1">
-            Browse Cellar Bottles
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-            <h2 className="disp text-2xl sm:text-4xl font-bold text-cellar-charcoal">
-              Our Cellar & Bottle Shop
-            </h2>
-            <Link
-              href="/shop"
-              className="text-xs font-bold text-wine-700 hover:text-wine-800 transition flex items-center gap-1"
-            >
-              <span>View All Bottles</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+      {/* Categories */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 className="mb-5 text-xl font-bold text-cellar-charcoal sm:text-2xl">Shop by category</h2>
+        <CategoryGrid categories={categories} />
+      </section>
+
+      {/* Products */}
+      {featuredProducts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-5 flex items-baseline justify-between gap-4">
+            <h2 className="text-xl font-bold text-cellar-charcoal sm:text-2xl">In stock now</h2>
+            <Link href="/shop" className="inline-flex items-center gap-1 text-sm font-semibold text-wine-700 hover:text-wine-800">
+              See everything <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
-        </div>
-
-        {/* Live Tabbed Filter Component */}
-        <HomeShopTabs categories={categories} products={featuredProducts} />
-      </section>
-
-      {/* 4. Cellar Categories Carousel - Squeezed, sleek & compact horizontal slider */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <CategoryCarousel categories={categories} />
-      </section>
-
-      {/* 5. Customer Reviews Scraped from Google Maps & Uber Eats */}
-      <section>
-        <CustomerReviews />
-      </section>
-
-      {/* 6. Our Story Section */}
-      <section className="bg-white border-y border-cellar-border py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-5 bg-[#ECE6DA] p-6 sm:p-10 rounded-sm border border-cellar-border text-center flex flex-col items-center justify-center">
-              <BrandLogo size={88} className="mb-3 shadow-md" />
-              <div className="disp text-3xl sm:text-4xl font-bold text-wine-700 mb-1">MH2 Liquor Store</div>
-              <div className="w-12 h-0.5 bg-gold-600 mb-3" />
-              <div className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-cellar-charcoal">
-                3106 4th Street NW
-              </div>
-              <div className="text-xs text-cellar-muted mt-0.5">Calgary, Alberta</div>
-              <div className="mt-4 text-xs bg-white/90 border border-cellar-border px-3.5 py-1.5 rounded-full font-semibold text-emerald-800">
-                Open until 2:00 AM Daily
-              </div>
-            </div>
-
-            <div className="lg:col-span-7 space-y-4">
-              <div className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-gold-700">
-                The Neighbourhood Bottle Shop
-              </div>
-              <h2 className="disp text-2xl sm:text-4xl font-bold text-cellar-charcoal leading-tight">
-                Your reliable local cellar on 4th Street.
-              </h2>
-              <p className="text-xs sm:text-sm text-cellar-muted leading-relaxed">
-                MH2 Liquor Store keeps its doors open until 2 AM every day of the week, so a last-minute dinner, a weekend party, or a quiet night in never runs short. Conveniently located beside Pad Thai and across from the cemetery, we offer dedicated parking directly in front of the store.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-3">
-                <Link
-                  href="/about"
-                  className="min-h-[44px] px-5 py-2.5 bg-wine-700 hover:bg-wine-800 text-white font-bold text-xs uppercase tracking-wider rounded-sm transition flex items-center justify-center"
-                >
-                  About Our Store
-                </Link>
-                <a
-                  href={uberEatsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="min-h-[44px] px-5 py-2.5 border border-cellar-border hover:border-gold-600 text-cellar-charcoal font-bold text-xs uppercase tracking-wider rounded-sm transition flex items-center justify-center gap-1.5"
-                >
-                  <Truck className="w-4 h-4 text-wine-700" />
-                  <span>Order on Uber Eats</span>
-                </a>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* 6. Holiday Banner - Cleanly positioned above footer without gap */}
-      <section className="bg-wine-700 text-white py-8 sm:py-10 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 -mb-6 sm:-mb-10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div className="space-y-1.5">
-            <h2 className="disp text-2xl sm:text-4xl font-bold">Open Through All Major Holidays</h2>
-            <p className="text-wine-100 text-xs sm:text-sm max-w-xl">
-              10:00 AM to 2:00 AM on Christmas Eve, Christmas Day, New Year&apos;s Eve, and New Year&apos;s Day.
+      {/* How to get it */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 className="mb-5 text-xl font-bold text-cellar-charcoal sm:text-2xl">Three ways to get your order</h2>
+        <div className="grid gap-px overflow-hidden rounded-sm border border-cellar-border bg-cellar-border md:grid-cols-3">
+          <div className="bg-white p-5 sm:p-6">
+            <h3 className="font-bold text-cellar-charcoal">Come in</h3>
+            <p className="mt-2 text-sm leading-relaxed text-cellar-muted">
+              {STORE.hoursLabel}. Free parking in front of the store.
             </p>
           </div>
-          <a
-            href={uberEatsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="min-h-[44px] px-7 py-3 bg-gold-500 hover:bg-gold-400 text-cellar-charcoal font-bold text-xs uppercase tracking-widest rounded-sm transition shadow-md shrink-0 flex items-center justify-center"
-          >
-            Order Delivery
-          </a>
+          <div className="bg-white p-5 sm:p-6">
+            <h3 className="font-bold text-cellar-charcoal">Curbside pickup</h3>
+            <p className="mt-2 text-sm leading-relaxed text-cellar-muted">
+              Call{' '}
+              <a href={STORE.phoneHref} className="font-semibold text-wine-700 hover:text-wine-800">
+                {STORE.phone}
+              </a>{' '}
+              and we&apos;ll bring it out to your car.
+            </p>
+          </div>
+          <div className="bg-white p-5 sm:p-6">
+            <h3 className="font-bold text-cellar-charcoal">Delivery</h3>
+            <p className="mt-2 text-sm leading-relaxed text-cellar-muted">
+              Order through{' '}
+              <a
+                href={STORE.uberEatsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-wine-700 hover:text-wine-800"
+              >
+                Uber Eats
+              </a>
+              . Have your photo ID ready, we check ID on every delivery.
+            </p>
+          </div>
         </div>
+        <p className="mt-3 text-xs text-cellar-muted">
+          You must be 18 or older. Government photo ID is required for pickup and delivery.{' '}
+          <Link href="/delivery" className="font-semibold text-wine-700 hover:text-wine-800">
+            Pickup and delivery details
+          </Link>
+        </p>
       </section>
+
+      <CustomerReviews />
     </div>
   );
 }

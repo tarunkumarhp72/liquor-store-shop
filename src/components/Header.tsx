@@ -30,9 +30,8 @@ export default function Header() {
       <div className="bg-cellar-charcoal text-[#D9D2C6] text-xs py-1.5 px-4 sm:px-6 lg:px-8 xl:px-10 border-b border-white/10">
         <div className="max-w-[1680px] w-full mx-auto flex justify-between items-center gap-2">
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 font-medium text-[11px] sm:text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Open daily 10:00 AM – 2:00 AM
+            <span className="font-medium text-[11px] sm:text-xs">
+              Open daily 10 AM – 2 AM
             </span>
             <span className="hidden md:inline-flex items-center gap-1 text-[#CFC7B8] text-xs">
               <MapPin className="w-3.5 h-3.5 text-gold-500" />
@@ -54,7 +53,7 @@ export default function Header() {
       </div>
 
       {/* Main Sticky Header - Frosted luxury glassmorphic bar */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#14100E]/85 border-b border-white/[0.08] shadow-md transition-all duration-200">
+      <header className="sticky top-0 z-50 bg-[#14100E] border-b border-white/10">
         <div className="max-w-[1680px] w-full mx-auto px-3.5 sm:px-6 lg:px-8 xl:px-10 py-2.5 sm:py-3 flex items-center justify-between gap-3">
           {/* Logo & Brand - Scaled for high mobile elegance */}
           <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
@@ -119,7 +118,7 @@ export default function Header() {
 
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#14100E]/95 backdrop-blur-2xl border-t border-gold-900/40 px-5 py-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="lg:hidden bg-[#14100E] border-t border-white/10 px-5 py-4">
             <div className="flex flex-col space-y-1">
               {navLinks.map((link) => {
                 const active = pathname === link.href;
@@ -158,13 +157,6 @@ export default function Header() {
                   <Phone className="w-4 h-4 text-gold-400" />
                   <span>Call Store: (403) 769-0061</span>
                 </button>
-                <Link
-                  href="/admin/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="min-h-[40px] text-[11px] text-center text-zinc-400 hover:text-gold-400 flex items-center justify-center transition"
-                >
-                  Staff Admin Sign In
-                </Link>
               </div>
             </div>
           </div>
